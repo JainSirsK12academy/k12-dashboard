@@ -97,19 +97,24 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
         const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
 
         const interval = setInterval(async () => {
-          const detections = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-          canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-          const resizedDetections = faceapi.resizeResults(detections, displaySize);
-          faceapi.draw.drawDetections(canvas, resizedDetections);
+  const detections = await faceapi
+    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptors();
 
-          resizedDetections.forEach(detection => {
-            const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-            const box = detection.detection.box;
-            const drawBox = new faceapi.draw.DrawBox(box, { label: bestMatch.toString() });
-            drawBox.draw(canvas);
-            statusEl.textContent = `Face recognized: ${bestMatch.toString()}`;
-          });
-        }, 1000);
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  const resizedDetections = faceapi.resizeResults(detections, displaySize);
+  faceapi.draw.drawDetections(canvas, resizedDetections);
+
+  resizedDetections.forEach(detection => {
+    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+    const box = detection.detection.box;
+    const drawBox = new faceapi.draw.DrawBox(box, { label: bestMatch.toString() });
+    drawBox.draw(canvas);
+    statusEl.textContent = `Face recognized: ${bestMatch.toString()}`;
+  });
+}, 1000);
+
       });
     }
 
