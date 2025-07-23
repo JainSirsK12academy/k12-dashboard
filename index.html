@@ -119,22 +119,37 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
     }
 
     function loadLabeledImages() {
-      const labels = ['Student1', 'Student2']; // Change these to actual student names and folder names
-      const basePath = `${window.location.origin}/k12-dashboard/labeled_images`;
-      return Promise.all(
-        labels.map(async label => {
-          const descriptions = [];
-          for (let i = 1; i <= 2; i++) {
-            const img = await faceapi.fetchImage(`${basePath}/${label}/${i}.jpg`);
-            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
-            if (detections) {
-              descriptions.push(detections.descriptor);
-            }
+  const labels = ['Student1', 'Student2']; // Replace with real folder names
+  const basePath = `${window.location.origin}/k12-dashboard/labeled_images`;
+
+  return Promise.all(
+    labels.map(async label => {
+      const descriptions = [];
+
+      for (let i = 1; i <= 2; i++) {
+        try {
+          const img = await faceapi.fetchImage(`${basePath}/${label}/${i}.jpg`);
+          const detection = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+
+          if (detection && detection.descriptor instanceof Float32Array) {
+            descriptions.push(detection.descriptor);
+          } else {
+            console.warn(`No face detected for ${label}/${i}.jpg`);
           }
-          return new faceapi.LabeledFaceDescriptors(label, descriptions);
-        })
-      );
-    }
+        } catch (err) {
+          console.error(`Error processing ${label}/${i}.jpg`, err);
+        }
+      }
+
+      if (descriptions.length === 0) {
+        throw new Error(`No valid face descriptors for label: ${label}`);
+      }
+
+      return new faceapi.LabeledFaceDescriptors(label, descriptions);
+    })
+  );
+}
+
   </script>
 </body>
 </html>
