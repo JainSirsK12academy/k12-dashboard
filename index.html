@@ -120,7 +120,9 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
       labels.map(async label => {
         const descriptions = [];
         for (let i = 1; i <= 2; i++) {
-          const img = await faceapi.fetchImage(`/labeled_images/${label}/${i}.jpg`);
+          const basePath = `${window.location.origin}/k12-dashboard`;
+          const img = await faceapi.fetchImage(`${basePath}/labeled_images/${label}/${i}.jpg`);
+
           const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
           if (detections) {
             descriptions.push(detections.descriptor);
