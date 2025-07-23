@@ -108,10 +108,19 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
 
   resizedDetections.forEach(detection => {
     const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-    const box = detection.detection.box;
-    const drawBox = new faceapi.draw.DrawBox(box, { label: bestMatch.toString() });
-    drawBox.draw(canvas);
-    statusEl.textContent = `Face recognized: ${bestMatch.toString()}`;
+const box = detection.detection.box;
+
+// Add ✅ only if matched
+let label = bestMatch.toString();
+if (!label.includes("unknown")) {
+  label += " ✅";
+}
+
+const drawBox = new faceapi.draw.DrawBox(box, { label });
+drawBox.draw(canvas);
+
+statusEl.textContent = `Face recognized: ${label}`;
+
   });
 }, 1000);
 
