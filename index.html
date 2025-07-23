@@ -77,10 +77,10 @@
 
     async function startFaceRecognition() {
       statusEl.textContent = "Loading face recognition model...";
-     await faceapi.nets.tinyFaceDetector.loadFromUri('k12-dashboard/models/tiny_face_detector/');
-await faceapi.nets.faceRecognitionNet.loadFromUri('k12-dashboard/models/face_recognition/');
-await faceapi.nets.faceLandmark68Net.loadFromUri('k12-dashboard/models/face_landmark_68/');
-await faceapi.nets.ssdMobilenetv1.loadFromUri('k12-dashboard/models/ssd_mobilenetv1/');
+     await faceapi.nets.tinyFaceDetector.loadFromUri('models');
+await faceapi.nets.faceRecognitionNet.loadFromUri('models');
+await faceapi.nets.faceLandmark68Net.loadFromUri('models');
+await faceapi.nets.ssdMobilenetv1.loadFromUri('models');
 
       statusEl.textContent = "Starting video...";
       navigator.mediaDevices.getUserMedia({ video: {} })
