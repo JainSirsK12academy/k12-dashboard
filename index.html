@@ -93,17 +93,41 @@
         const displaySize = { width: video.width, height: video.height };
         faceapi.matchDimensions(canvas, displaySize);
 
-        const interval = setInterval(async () => {
-          const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-          canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-          faceapi.draw.drawDetections(canvas, faceapi.resizeResults(detections, displaySize));
+        const labeledDescriptors = await loadLabeledImages();
+        const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
 
-          if (detections.length > 0) {
-            statusEl.textContent = "Face detected. Attendance marked.";
-            clearInterval(interval);
-          }
+        const interval = setInterval(async () => {
+          const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+          canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+          const resizedDetections = faceapi.resizeResults(detections, displaySize);
+          faceapi.draw.drawDetections(canvas, resizedDetections);
+
+          resizedDetections.forEach(detection => {
+            const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+            const box = detection.detection.box;
+            const drawBox = new faceapi.draw.DrawBox(box, { label: bestMatch.toString() });
+            drawBox.draw(canvas);
+            statusEl.textContent = `Face recognized: ${bestMatch.toString()}`;
+          });
         }, 1000);
       });
+    }
+
+    function loadLabeledImages() {
+      const labels = ['Student1', 'Student2']; // Change these to actual student names and folder names
+      return Promise.all(
+        labels.map(async label => {
+          const descriptions = [];
+          for (let i = 1; i <= 2; i++) {
+            const img = await faceapi.fetchImage(`/labeled_images/${label}/${i}.jpg`);
+            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+            if (detections) {
+              descriptions.push(detections.descriptor);
+            }
+          }
+          return new faceapi.LabeledFaceDescriptors(label, descriptions);
+        })
+      );
     }
   </script>
 </body>
