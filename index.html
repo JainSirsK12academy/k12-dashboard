@@ -80,7 +80,6 @@
      await faceapi.nets.tinyFaceDetector.loadFromUri('models');
 await faceapi.nets.faceRecognitionNet.loadFromUri('models');
 await faceapi.nets.faceLandmark68Net.loadFromUri('models');
-      await faceapi.nets.ssdMobilenetv1.loadFromUri('models/ssd_mobilenetv1');
 
       statusEl.textContent = "Starting video...";
       navigator.mediaDevices.getUserMedia({ video: {} })
@@ -98,7 +97,7 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
         const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
 
         const interval = setInterval(async () => {
-          const detections = await faceapi.detectAllFaces(video, new faceapi.SsdMobilenetv1Options()).withFaceLandmarks().withFaceDescriptors();
+          const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
           canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
           const resizedDetections = faceapi.resizeResults(detections, displaySize);
           faceapi.draw.drawDetections(canvas, resizedDetections);
