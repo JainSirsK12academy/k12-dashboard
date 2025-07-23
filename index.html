@@ -129,8 +129,12 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
       for (let i = 1; i <= 2; i++) {
         try {
           const img = await faceapi.fetchImage(`${basePath}/${label}/${i}.jpg`);
-          const detection = await new faceapi.TinyFaceDetectorOptions().withFaceLandmarks().withFaceDescriptor();
 
+const detection = await faceapi.detectSingleFace(
+  img,                              // or `video` if from webcam
+  new faceapi.TinyFaceDetectorOptions()
+).withFaceLandmarks().withFaceDescriptor();
+          
           if (detection && detection.descriptor instanceof Float32Array) {
             descriptions.push(detection.descriptor);
           } else {
