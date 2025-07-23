@@ -115,23 +115,24 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
   }
 
   function loadLabeledImages() {
-    const labels = ['Student1', 'Student2']; // Add more labels as needed
-    return Promise.all(
-      labels.map(async label => {
-        const descriptions = [];
-        for (let i = 1; i <= 2; i++) {
-          const basePath = `${window.location.origin}/k12-dashboard`;
-          const img = await faceapi.fetchImage(`${basePath}/labeled_images/${label}/${i}.jpg`);
+  const labels = ['Student1', 'Student2']; // Change these to actual student names and folder names
+  const basePath = `${window.location.origin}/k12-dashboard/labeled_images`;
 
-          const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-          if (detections) {
-            descriptions.push(detections.descriptor);
-          }
+  return Promise.all(
+    labels.map(async label => {
+      const descriptions = [];
+      for (let i = 1; i <= 2; i++) {
+        const img = await faceapi.fetchImage(`${basePath}/${label}/${i}.jpg`);
+        const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+        if (detections) {
+          descriptions.push(detections.descriptor);
         }
-        return new faceapi.LabeledFaceDescriptors(label, descriptions);
-      })
-    );
-  }
+      }
+      return new faceapi.LabeledFaceDescriptors(label, descriptions);
+    })
+  );
+}
+
 </script>
 
 </body>
