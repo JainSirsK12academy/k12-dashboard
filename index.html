@@ -6,22 +6,25 @@
   <title>K-12 Academy Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
 </head>
 <body class="bg-gray-100 font-[Inter] p-4">
   <div class="max-w-4xl mx-auto">
     <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
+
+    <!-- Section: Face Recognition Attendance -->
+    <div class="bg-white p-6 rounded-2xl shadow mb-6">
+      <h2 class="text-2xl font-semibold mb-4">📷 Student Attendance (Face Recognition)</h2>
+      <video id="video" width="100%" autoplay muted class="rounded mb-4"></video>
+      <button onclick="startFaceRecognition()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Face Recognition</button>
+      <p id="status" class="mt-4 text-green-600 font-semibold"></p>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- Teacher Attendance -->
       <a href="https://forms.gle/your-teacher-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
         <h2 class="text-xl font-semibold mb-2">👩‍🏫 Teacher Attendance</h2>
         <p class="text-gray-600">Record daily IN/OUT for teachers.</p>
-      </a>
-
-      <!-- Student Attendance -->
-      <a href="https://forms.gle/your-student-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">🧑‍🎓 Student Attendance</h2>
-        <p class="text-gray-600">Scan QR or submit daily student attendance.</p>
       </a>
 
       <!-- Staff Attendance -->
@@ -36,10 +39,10 @@
         <p class="text-gray-600">Capture leads and new student enquiries.</p>
       </a>
 
-      <!-- Test Marks Entry (links to new page) -->
-      <a href="test-marks.html" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+      <!-- Test Marks Entry -->
+      <a href="https://forms.gle/your-test-marks-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
         <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry</h2>
-        <p class="text-gray-600">Enter and track marks for each test by class.</p>
+        <p class="text-gray-600">Enter and track marks for each test.</p>
       </a>
 
       <!-- Syllabus Tracker -->
@@ -65,13 +68,43 @@
         <h2 class="text-xl font-semibold mb-2">📊 Teacher Summary</h2>
         <p class="text-gray-600">See weekly logs of what you’ve taught and homework assigned.</p>
       </a>
-
-      <!-- Upload File -->
-      <a href="https://forms.gle/your-upload-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📁 Upload File</h2>
-        <p class="text-gray-600">Upload scanned answer sheets, images, or notes.</p>
-      </a>
     </div>
   </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const statusEl = document.getElementById('status');
+
+    async function startFaceRecognition() {
+      statusEl.textContent = "Loading face recognition model...";
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+      await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+      await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+
+      statusEl.textContent = "Starting video...";
+      navigator.mediaDevices.getUserMedia({ video: {} })
+        .then(stream => video.srcObject = stream)
+        .catch(err => console.error("Camera error:", err));
+
+      video.addEventListener('play', async () => {
+        statusEl.textContent = "Detecting face...";
+        const canvas = faceapi.createCanvasFromMedia(video);
+        document.body.append(canvas);
+        const displaySize = { width: video.width, height: video.height };
+        faceapi.matchDimensions(canvas, displaySize);
+
+        const interval = setInterval(async () => {
+          const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+          canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+          faceapi.draw.drawDetections(canvas, faceapi.resizeResults(detections, displaySize));
+
+          if (detections.length > 0) {
+            statusEl.textContent = "Face detected. Attendance marked.";
+            clearInterval(interval);
+          }
+        }, 1000);
+      });
+    }
+  </script>
 </body>
 </html>
