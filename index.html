@@ -108,12 +108,27 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
 
   resizedDetections.forEach(detection => {
     const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-const box = detection.detection.box;
+    const box = detection.detection.box;
 
 // Add ✅ only if matched
 let label = bestMatch.toString();
 if (!label.includes("unknown")) {
   label += " ✅";
+}
+
+    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+    const label = bestMatch.label;
+
+// Optional: prevent sending multiple times for same person
+if (label !== 'unknown') {
+  const rollNo = label; // assuming label = RollNo like "10CBSE01"
+  const name = getStudentNameFromRollNo(rollNo); // helper function
+  const status = 'IN'; // or "OUT" if used differently
+
+  statusEl.textContent = `✅ Marked present: ${name}`;
+
+  // Send to sheet
+  await sendAttendanceToSheet(rollNo, name, status);
 }
 
 const drawBox = new faceapi.draw.DrawBox(box, { label });
@@ -161,6 +176,21 @@ const detection = await faceapi.detectSingleFace(
       return new faceapi.LabeledFaceDescriptors(label, descriptions);
     })
   );
+}
+async function sendAttendanceToSheet(rollNo, name, status) {
+  const payload = {
+    rollNo: rollNo,
+    name: name,
+    status: status
+  };
+
+  await fetch('https://script.google.com/macros/s/AKfycbyr6-9_ETeiA8BKFC2es10hstvf1iyINLrmaEt2NGMzcdHBNlQXxFJa1goAOpspJvaTMg/exec', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 }
 
   </script>
