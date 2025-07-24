@@ -116,21 +116,6 @@ if (!label.includes("unknown")) {
   label += " ✅";
 }
 
-    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-    const label = bestMatch.label;
-
-// Optional: prevent sending multiple times for same person
-if (label !== 'unknown') {
-  const rollNo = label; // assuming label = RollNo like "10CBSE01"
-  const name = getStudentNameFromRollNo(rollNo); // helper function
-  const status = 'IN'; // or "OUT" if used differently
-
-  statusEl.textContent = `✅ Marked present: ${name}`;
-
-  // Send to sheet
-  await sendAttendanceToSheet(rollNo, name, status);
-}
-
 const drawBox = new faceapi.draw.DrawBox(box, { label });
 drawBox.draw(canvas);
 
