@@ -102,7 +102,7 @@ function getStudentFromRollNo(rollNo) {
 }
 
 async function sendAttendanceToSheet(rollNo, name, className, status) {
-  await fetch("https://script.google.com/macros/s/AKfycbyr6-9_ETeiA8BKFC2es10hstvf1iyINLrmaEt2NGMzcdHBNlQXxFJa1goAOpspJvaTMg/exec", {
+  await fetch("https://script.google.com/macros/s/AKfycbwnwjJku9c5d0eH3LQGfLhs7bKH_4jW_Ka0OO8qc3xNnWy5uYRx96gnU-YDSSsDtJ__XA/exec", {
     redirect: "follow",
     method: "POST",
     body: JSON.stringify({
