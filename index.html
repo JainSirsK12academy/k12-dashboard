@@ -111,8 +111,11 @@ async function sendAttendanceToSheet(rollNo, name, className, status) {
       className,
       status
     }),
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" }, 
+    body: JSON.stringify(payload),
+  credentials: 'include' // 👈 VERY IMPORTANT for signed-in users
   });
+  
 }
 
     
