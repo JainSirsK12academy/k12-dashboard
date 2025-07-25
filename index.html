@@ -20,11 +20,6 @@
       <p id="status" class="mt-4 text-green-600 font-semibold"></p>
     </div>
 
-    <div class="flex gap-4 mt-2">
-  <button onclick="setStatus('IN')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">IN</button>
-  <button onclick="setStatus('OUT')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OUT</button>
-</div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- Teacher Attendance -->
       <a href="https://forms.gle/your-teacher-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
@@ -80,97 +75,57 @@
     const video = document.getElementById('video');
     const statusEl = document.getElementById('status');
 
-let currentStatus = "IN"; // default
+    async function startFaceRecognition() {
+      statusEl.textContent = "Loading face recognition model...";
+     await faceapi.nets.tinyFaceDetector.loadFromUri('models');
+await faceapi.nets.faceRecognitionNet.loadFromUri('models');
+await faceapi.nets.faceLandmark68Net.loadFromUri('models');
 
-function setStatus(status) {
-  currentStatus = status;
+      statusEl.textContent = "Starting video...";
+      navigator.mediaDevices.getUserMedia({ video: {} })
+        .then(stream => video.srcObject = stream)
+        .catch(err => console.error("Camera error:", err));
+
+      video.addEventListener('play', async () => {
+        statusEl.textContent = "Detecting face...";
+        const canvas = faceapi.createCanvasFromMedia(video);
+        document.body.append(canvas);
+        const displaySize = { width: video.videoWidth, height: video.videoHeight };
+        faceapi.matchDimensions(canvas, displaySize);
+
+        const labeledDescriptors = await loadLabeledImages();
+        const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
+
+        const interval = setInterval(async () => {
+  const detections = await faceapi
+    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptors();
+
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  const resizedDetections = faceapi.resizeResults(detections, displaySize);
+  faceapi.draw.drawDetections(canvas, resizedDetections);
+
+  resizedDetections.forEach(detection => {
+    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+    const box = detection.detection.box;
+
+// Add ✅ only if matched
+let label = bestMatch.toString();
+if (!label.includes("unknown")) {
+  label += " ✅";
 }
 
-function getStudentFromRollNo(rollNo) {
-  // Format: "10CBSE01"
-  const match = rollNo.match(/(\D+)(\d+)/); // separate letters & digits
-  if (!match) return { class: '', name: '', rollNo };
+const drawBox = new faceapi.draw.DrawBox(box, { label });
+drawBox.draw(canvas);
 
-  const studentClass = match[1] + match[2].slice(0, 2); // e.g., "10CBSE"
-  const rollNum = rollNo.slice(studentClass.length);
-  // You could map this from a JS object or hardcoded map, but ideally do this on server side
-  return {
-    class: studentClass,
-    rollNo,
-    name: "Student " + rollNo, // You can replace this with API lookup later
-  };
-}
+statusEl.textContent = `Face recognized: ${label}`;
 
-async function sendAttendanceToSheet(rollNo, name, className, status) {
-  await fetch("https://script.google.com/macros/s/AKfycbyYNTTONwhn5x0KwCctSrUxiwO8el9QKBhngcHtRPzeNw9Gecce2DiC83CBBUkvCaCWng/exec", {
-    redirect: "follow",
-    method: "POST",
-    body: JSON.stringify({
-      rollNo,
-      name,
-      className,
-      status
-    }),
-    headers: { "Content-Type": "application/json" }, 
-    body: JSON.stringify(payload),
-  credentials: 'include' // 👈 VERY IMPORTANT for signed-in users
   });
-  
-}
+}, 1000);
 
-    
-   async function startFaceRecognition() {
-  statusEl.textContent = "Loading face recognition models...";
-  await faceapi.nets.tinyFaceDetector.loadFromUri('models');
-  await faceapi.nets.faceRecognitionNet.loadFromUri('models');
-  await faceapi.nets.faceLandmark68Net.loadFromUri('models');
-
-  statusEl.textContent = "Starting camera...";
-  navigator.mediaDevices.getUserMedia({ video: {} })
-    .then(stream => video.srcObject = stream)
-    .catch(err => console.error("Camera error:", err));
-
-  video.addEventListener('play', async () => {
-    const canvas = faceapi.createCanvasFromMedia(video);
-    document.body.append(canvas);
-    const displaySize = { width: video.videoWidth, height: video.videoHeight };
-    faceapi.matchDimensions(canvas, displaySize);
-
-    const labeledDescriptors = await loadLabeledImages();
-    const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
-
-    statusEl.textContent = "Detecting face...";
-
-    const seen = new Set(); // Prevents duplicate sending
-
-    setInterval(async () => {
-      const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-        .withFaceLandmarks().withFaceDescriptors();
-
-      const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-      faceapi.draw.drawDetections(canvas, resizedDetections);
-
-      for (const detection of resizedDetections) {
-        const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-        const label = bestMatch.label;
-
-        const box = detection.detection.box;
-        const drawBox = new faceapi.draw.DrawBox(box, {
-          label: label === "unknown" ? "Unknown" : `✅ ${label}`
-        });
-        drawBox.draw(canvas);
-
-        if (label !== "unknown" && !seen.has(label)) {
-          seen.add(label);
-          const { rollNo, name, class: className } = getStudentFromRollNo(label);
-          await sendAttendanceToSheet(rollNo, name, className, currentStatus);
-          statusEl.textContent = `✅ ${name} marked ${currentStatus}`;
-        }
-      }
-    }, 1500);
-  });
-}
+      });
+    }
 
     function loadLabeledImages() {
   const labels = ['Student1', 'Student2']; // Replace with real folder names
@@ -214,7 +169,7 @@ async function sendAttendanceToSheet(rollNo, name, status) {
     status: status
   };
 
-  await fetch('https://script.google.com/macros/s/AKfycbyYNTTONwhn5x0KwCctSrUxiwO8el9QKBhngcHtRPzeNw9Gecce2DiC83CBBUkvCaCWng/exec', {
+  await fetch('https://script.google.com/macros/s/AKfycbyr6-9_ETeiA8BKFC2es10hstvf1iyINLrmaEt2NGMzcdHBNlQXxFJa1goAOpspJvaTMg/exec', {
     method: 'POST',
     body: JSON.stringify(payload),
     headers: {
