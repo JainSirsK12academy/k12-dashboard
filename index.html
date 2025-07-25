@@ -16,9 +16,17 @@
     <div class="bg-white p-6 rounded-2xl shadow mb-6">
       <h2 class="text-2xl font-semibold mb-4">📷 Student Attendance (Face Recognition)</h2>
       <video id="video" width="100%" autoplay muted class="rounded mb-4"></video>
+
+      <div class="flex gap-4 my-4">
+  <button onclick="setAttendanceStatus('IN')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">IN</button>
+  <button onclick="setAttendanceStatus('OUT')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OUT</button>
+</div>
+      
       <button onclick="startFaceRecognition()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Face Recognition</button>
       <p id="status" class="mt-4 text-green-600 font-semibold"></p>
     </div>
+
+
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- Teacher Attendance -->
@@ -74,22 +82,12 @@
   <script>
     const video = document.getElementById('video');
     const statusEl = document.getElementById('status');
+    const recentAttendance = {};
 
-    async function sendAttendanceToSheet(rollNo, name, status) {
-  const payload = {
-    rollNo: rollNo,
-    name: name,
-    status: status
-  };
-
-  await fetch('https://script.google.com/macros/s/AKfycbyYNTTONwhn5x0KwCctSrUxiwO8el9QKBhngcHtRPzeNw9Gecce2DiC83CBBUkvCaCWng/exec', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    mode: 'no-cors' // this avoids CORS error, but you won’t get response text
-  });
+let currentStatus = "IN";
+function setAttendanceStatus(status) {
+  currentStatus = status;
+  statusEl.textContent = `Status set to ${status}`;
 }
 
     
@@ -124,22 +122,42 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
   const resizedDetections = faceapi.resizeResults(detections, displaySize);
   faceapi.draw.drawDetections(canvas, resizedDetections);
 
-  resizedDetections.forEach(detection => {
-    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-    const box = detection.detection.box;
+  const labelToRollMap = {
+  'Student1': { rollNo: '10CBSE01', name: 'Avi Jain' },
+  'Student2': { rollNo: '10CBSE02', name: 'Divya Shah' }
+};
 
-// Add ✅ only if matched
-let label = bestMatch.toString();
-if (!label.includes("unknown")) {
-  label += " ✅";
-}
+resizedDetections.forEach(detection => {
+  const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+  const matchLabel = bestMatch.label;
+  const box = detection.detection.box;
 
-const drawBox = new faceapi.draw.DrawBox(box, { label });
-drawBox.draw(canvas);
+  let label = matchLabel;
 
-statusEl.textContent = `Face recognized: ${label}`;
+  if (matchLabel !== "unknown" && labelToRollMap[matchLabel]) {
+    const { rollNo, name } = labelToRollMap[matchLabel];
+    label += " ✅";
+    const drawBox = new faceapi.draw.DrawBox(box, { label });
+    drawBox.draw(canvas);
 
-  });
+    const now = Date.now();
+    if (!recentAttendance[rollNo] || now - recentAttendance[rollNo] > 60000) {
+      sendAttendanceToSheet(rollNo, name, currentStatus);
+      recentAttendance[rollNo] = now;
+
+      statusEl.textContent = `Attendance marked for ${name} (${rollNo}) as ${currentStatus}`;
+    } else {
+      statusEl.textContent = `${name} (${rollNo}) recently marked. Waiting...`;
+    }
+  } else {
+    statusEl.textContent = "Face detected, but not recognized";
+    const drawBox = new faceapi.draw.DrawBox(box, { label });
+    drawBox.draw(canvas);
+  }
+});
+
+
+
 }, 1000);
 
       });
@@ -180,12 +198,9 @@ const detection = await faceapi.detectSingleFace(
     })
   );
 }
-async function sendAttendanceToSheet(rollNo, name, status) {
-  const payload = {
-    rollNo: rollNo,
-    name: name,
-    status: status
-  };
+
+ async function sendAttendanceToSheet(rollNo, name, status) {
+  const payload = { rollNo, name, status };
 
   await fetch('https://script.google.com/macros/s/AKfycbyr6-9_ETeiA8BKFC2es10hstvf1iyINLrmaEt2NGMzcdHBNlQXxFJa1goAOpspJvaTMg/exec', {
     method: 'POST',
@@ -193,8 +208,10 @@ async function sendAttendanceToSheet(rollNo, name, status) {
     headers: {
       'Content-Type': 'application/json',
     },
+    mode: 'no-cors'
   });
 }
+ 
 
   </script>
 </body>
