@@ -11,6 +11,8 @@
 <body class="bg-gray-100 font-[Inter] p-4">
   <div class="max-w-4xl mx-auto">
     <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
+<link rel="icon" href="favicon.ico" />
+<meta name="description" content="Face Recognition Dashboard for K-12 Academy Attendance" />
 
     <!-- Section: Face Recognition Attendance -->
     <div class="bg-white p-6 rounded-2xl shadow mb-6">
@@ -92,6 +94,7 @@ function setAttendanceStatus(status) {
 
     
     async function startFaceRecognition() {
+      document.querySelectorAll('canvas').forEach(c => c.remove());
       statusEl.textContent = "Loading face recognition model...";
      await faceapi.nets.tinyFaceDetector.loadFromUri('models');
 await faceapi.nets.faceRecognitionNet.loadFromUri('models');
@@ -122,10 +125,15 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
   const resizedDetections = faceapi.resizeResults(detections, displaySize);
   faceapi.draw.drawDetections(canvas, resizedDetections);
 
-  const labelToRollMap = {
-  'Student1': { rollNo: '10CBSE01', name: 'Avi Jain' },
-  'Student2': { rollNo: '10CBSE02', name: 'Divya Shah' }
-};
+  function parseLabel(label) {
+  const parts = label.split('_'); // ['10CBSE', '01', 'Jainish', 'Jain']
+  const className = parts[0];
+  const rollPart = parts[1];
+  const name = parts.slice(2).join(' ');
+  const rollNo = `${className}_${rollPart}`;
+  return { rollNo, name, className };
+}
+
 
 resizedDetections.forEach(detection => {
   const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
@@ -134,15 +142,15 @@ resizedDetections.forEach(detection => {
 
   let label = matchLabel;
 
-  if (matchLabel !== "unknown" && labelToRollMap[matchLabel]) {
-    const { rollNo, name } = labelToRollMap[matchLabel];
+  if (matchLabel !== "unknown") {
+    const { rollNo, name, className } = parseLabel(matchLabel);
     label += " ✅";
     const drawBox = new faceapi.draw.DrawBox(box, { label });
     drawBox.draw(canvas);
 
     const now = Date.now();
     if (!recentAttendance[rollNo] || now - recentAttendance[rollNo] > 60000) {
-      sendAttendanceToSheet(rollNo, name, currentStatus);
+      sendAttendanceToSheet(rollNo, name, className, currentStatus);
       recentAttendance[rollNo] = now;
 
       statusEl.textContent = `Attendance marked for ${name} (${rollNo}) as ${currentStatus}`;
@@ -162,9 +170,9 @@ resizedDetections.forEach(detection => {
 
       });
     }
-
-    function loadLabeledImages() {
-  const labels = ['Student1', 'Student2']; // Replace with real folder names
+async function loadLabeledImages() {
+  const response = await fetch('labeled_images/labels.json');
+  const labels = await response.json();
   const basePath = `${window.location.origin}/k12-dashboard/labeled_images`;
 
   return Promise.all(
@@ -174,12 +182,10 @@ resizedDetections.forEach(detection => {
       for (let i = 1; i <= 2; i++) {
         try {
           const img = await faceapi.fetchImage(`${basePath}/${label}/${i}.jpg`);
+          const detection = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            .withFaceDescriptor();
 
-const detection = await faceapi.detectSingleFace(
-  img,                              // or `video` if from webcam
-  new faceapi.TinyFaceDetectorOptions()
-).withFaceLandmarks().withFaceDescriptor();
-          
           if (detection && detection.descriptor instanceof Float32Array) {
             descriptions.push(detection.descriptor);
           } else {
@@ -199,10 +205,11 @@ const detection = await faceapi.detectSingleFace(
   );
 }
 
- async function sendAttendanceToSheet(rollNo, name, status) {
-  const payload = { rollNo, name, status };
 
-  await fetch('https://script.google.com/macros/s/AKfycbyr6-9_ETeiA8BKFC2es10hstvf1iyINLrmaEt2NGMzcdHBNlQXxFJa1goAOpspJvaTMg/exec', {
+ async function sendAttendanceToSheet(rollNo, name, className, status) {
+  const payload = { rollNo, name, className, status };
+
+  await fetch('https://script.google.com/macros/s/AKfycbyYNTTONwhn5x0KwCctSrUxiwO8el9QKBhngcHtRPzeNw9Gecce2DiC83CBBUkvCaCWng/exec', {
     method: 'POST',
     body: JSON.stringify(payload),
     headers: {
@@ -211,6 +218,7 @@ const detection = await faceapi.detectSingleFace(
     mode: 'no-cors'
   });
 }
+
  
 
   </script>
