@@ -170,10 +170,10 @@ resizedDetections.forEach(detection => {
 
       });
     }
+const basePath = `${window.location.origin}/k12-dashboard/labeled_images`;
 async function loadLabeledImages() {
-  const response = await fetch('labeled_images/labels.json');
+  const response = await fetch(`${basePath}/labels.json`);
   const labels = await response.json();
-  const basePath = `${window.location.origin}/k12-dashboard/labeled_images`;
 
   return Promise.all(
     labels.map(async label => {
