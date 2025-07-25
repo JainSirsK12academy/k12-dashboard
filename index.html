@@ -134,18 +134,14 @@ await faceapi.nets.faceLandmark68Net.loadFromUri('models');
   return { rollNo, name, className };
 }
 
-
 resizedDetections.forEach(detection => {
   const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-  const matchLabel = bestMatch.label;
-  const box = detection.detection.box;
 
-  let label = matchLabel;
-
-  if (matchLabel !== "unknown") {
+  if (bestMatch.label !== "unknown" && bestMatch.distance <= 0.6) {
+    const matchLabel = bestMatch.label;
+    const box = detection.detection.box;
     const { rollNo, name, className } = parseLabel(matchLabel);
-    label += " ✅";
-    const drawBox = new faceapi.draw.DrawBox(box, { label });
+    const drawBox = new faceapi.draw.DrawBox(box, { label: `${matchLabel} ✅` });
     drawBox.draw(canvas);
 
     const now = Date.now();
@@ -153,16 +149,18 @@ resizedDetections.forEach(detection => {
       sendAttendanceToSheet(rollNo, name, className, currentStatus);
       recentAttendance[rollNo] = now;
 
-      statusEl.textContent = `Attendance marked for ${name} (${rollNo}) as ${currentStatus}`;
+      statusEl.textContent = `✅ Attendance marked for ${name} (${rollNo}) as ${currentStatus}`;
     } else {
       statusEl.textContent = `${name} (${rollNo}) recently marked. Waiting...`;
     }
   } else {
-    statusEl.textContent = "Face detected, but not recognized";
-    const drawBox = new faceapi.draw.DrawBox(box, { label });
+    const box = detection.detection.box;
+    const drawBox = new faceapi.draw.DrawBox(box, { label: "❌ Not Recognized" });
     drawBox.draw(canvas);
+    statusEl.textContent = "⚠️ Face not recognized confidently. Try again.";
   }
 });
+
 
 
 
