@@ -110,6 +110,7 @@
     const correctUsername = "admin";
     const correctPassword = "k12pass";
 
+
     function showLoginScreen() {
       document.getElementById('face-section-gate').style.display = 'none';
       document.getElementById('login-screen').style.display = 'block';
@@ -238,10 +239,7 @@ setTimeout(() => {
     statusEl.textContent = "⚠️ Face not recognized confidently. Try again.";
   }
 });
-
-
-
-
+          
 }, 1000);
 
       });
@@ -296,24 +294,8 @@ method: 'POST',
 
    
 }
-
  
 
-  </script>
-
-  <script>
-  function checkLogin() {
-    const username = document.getElementById("login-username").value.trim();
-    const password = document.getElementById("login-password").value.trim();
-
-    if (username === validUsername && password === validPassword) {
-      document.getElementById("login-screen").style.display = "none";
-      document.getElementById("face-recognition-ui").style.display = "block";
-    } else {
-      document.getElementById("login-message").innerText = "❌ Invalid login. Try again.";
-    }
-  }
 </script>
-
 </body>
 </html>
