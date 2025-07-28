@@ -21,6 +21,20 @@
 
 </head>
 <body class="bg-gray-100 font-[Inter] p-4">
+  
+  <div id="login-screen" style="display: block; text-align:center; padding: 30px;">
+  <h2>🔒 Login Required</h2>
+  <input type="text" id="login-username" placeholder="Username" style="padding:10px; width: 200px;" /><br><br>
+  <input type="password" id="login-password" placeholder="Password" style="padding:10px; width: 200px;" /><br><br>
+  <button onclick="checkLogin()" style="padding:10px 20px;">Login</button>
+  <p id="login-message" style="color:red; margin-top:10px;"></p>
+</div>
+
+<!-- Put your entire existing face recognition UI inside this div -->
+<div id="face-recognition-ui" style="display: none;">
+  <!-- 🔽 Your face detection app UI goes here -->
+</div>
+
   <div class="max-w-4xl mx-auto">
     <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
 <link rel="icon" href="favicon.ico" />
@@ -263,5 +277,24 @@ method: 'POST',
  
 
   </script>
+
+  <script>
+  function checkLogin() {
+    const username = document.getElementById("login-username").value.trim();
+    const password = document.getElementById("login-password").value.trim();
+
+    // ✅ Change these to your preferred credentials
+    const validUsername = "admin";
+    const validPassword = "12345";
+
+    if (username === validUsername && password === validPassword) {
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("face-recognition-ui").style.display = "block";
+    } else {
+      document.getElementById("login-message").innerText = "❌ Invalid login. Try again.";
+    }
+  }
+</script>
+
 </body>
 </html>
