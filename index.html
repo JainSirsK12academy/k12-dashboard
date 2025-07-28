@@ -8,108 +8,101 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <style>
-  .pulse {
-    animation: pulse 1s ease-out;
-  }
+    .pulse {
+      animation: pulse 1s ease-out;
+    }
 
-  @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-</style>
-
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
 </head>
 <body class="bg-gray-100 font-[Inter] p-4">
-  
-  <div id="login-screen" style="display: block; text-align:center; padding: 30px;">
-  <h2>🔒 Login Required</h2>
-  <input type="text" id="login-username" placeholder="Username" style="padding:10px; width: 200px;" /><br><br>
-  <input type="password" id="login-password" placeholder="Password" style="padding:10px; width: 200px;" /><br><br>
-  <button onclick="checkLogin()" style="padding:10px 20px;">Login</button>
-  <p id="login-message" style="color:red; margin-top:10px;"></p>
-</div>
 
-<!-- Put your entire existing face recognition UI inside this div -->
-<div id="face-recognition-ui" style="display: none;">
-  <!-- 🔽 Your face detection app UI goes here -->
-</div>
+  <!-- Login Screen -->
+  <div id="login-screen" class="text-center p-8">
+    <h2 class="text-2xl font-semibold mb-4">🔒 Login Required</h2>
+    <input type="text" id="login-username" placeholder="Username" class="p-2 w-64 rounded border mb-2" /><br>
+    <input type="password" id="login-password" placeholder="Password" class="p-2 w-64 rounded border mb-4" /><br>
+    <button onclick="checkLogin()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login</button>
+    <p id="login-message" class="text-red-600 mt-2"></p>
+  </div>
 
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
-<link rel="icon" href="favicon.ico" />
-<meta name="description" content="Face Recognition Dashboard for K-12 Academy Attendance" />
+  <!-- Dashboard UI -->
+  <div id="face-recognition-ui" style="display:none;">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
 
-    <!-- Section: Face Recognition Attendance -->
-    <div class="bg-white p-6 rounded-2xl shadow mb-6">
-      <h2 class="text-2xl font-semibold mb-4">📷 Student Attendance (Face Recognition)</h2>
-      <video id="video" width="100%" autoplay muted class="rounded mb-4"></video>
-<div class="flex gap-4 my-4">
-  <button id="inBtn" onclick="setAttendanceStatus('IN')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">IN</button>
-  <button id="outBtn" onclick="setAttendanceStatus('OUT')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OUT</button>
-</div>
-<audio id="sound-in" src="in.mp3" preload="auto"></audio>
-<audio id="sound-out" src="out.mp3" preload="auto"></audio>
+      <!-- Face Recognition Attendance -->
+      <div class="bg-white p-6 rounded-2xl shadow mb-6">
+        <h2 class="text-2xl font-semibold mb-4">📷 Student Attendance (Face Recognition)</h2>
+        <video id="video" width="100%" autoplay muted class="rounded mb-4"></video>
+        <div class="flex gap-4 my-4">
+          <button id="inBtn" onclick="setAttendanceStatus('IN')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">IN</button>
+          <button id="outBtn" onclick="setAttendanceStatus('OUT')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">OUT</button>
+        </div>
+        <audio id="sound-in" src="in.mp3" preload="auto"></audio>
+        <audio id="sound-out" src="out.mp3" preload="auto"></audio>
+        <button onclick="startFaceRecognition()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Face Recognition</button>
+        <p id="status" class="mt-4 text-green-600 font-semibold"></p>
+      </div>
 
-      
-      <button onclick="startFaceRecognition()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Face Recognition</button>
-      <p id="status" class="mt-4 text-green-600 font-semibold"></p>
-    </div>
-
-
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <!-- Teacher Attendance -->
-      <a href="https://forms.gle/your-teacher-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">👩‍🏫 Teacher Attendance</h2>
-        <p class="text-gray-600">Record daily IN/OUT for teachers.</p>
-      </a>
-
-      <!-- Staff Attendance -->
-      <a href="https://forms.gle/your-non-teaching-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">🧹 Non-Teaching Staff</h2>
-        <p class="text-gray-600">Log support staff attendance here.</p>
-      </a>
-
-      <!-- Enquiry Form -->
-      <a href="https://forms.gle/your-enquiry-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📞 Enquiry Form</h2>
-        <p class="text-gray-600">Capture leads and new student enquiries.</p>
-      </a>
-
-      <!-- Test Marks Entry -->
-      <a href="https://forms.gle/your-test-marks-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry</h2>
-        <p class="text-gray-600">Enter and track marks for each test.</p>
-      </a>
-
-      <!-- Syllabus Tracker -->
-      <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📖 Syllabus Completion</h2>
-        <p class="text-gray-600">Log completed chapters per subject and class.</p>
-      </a>
-
-      <!-- Homework Entry -->
-      <a href="https://forms.gle/your-homework-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📚 Homework Log</h2>
-        <p class="text-gray-600">Daily homework update and completion tracking.</p>
-      </a>
-
-      <!-- Daily Teaching Log -->
-      <a href="https://forms.gle/NWka4SDasWtGhCxw6" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">🗒️ Daily Teaching Log</h2>
-        <p class="text-gray-600">Log what was taught today and homework given by teachers.</p>
-      </a>
-
-      <!-- Teacher Summary Dashboard -->
-      <a href="https://docs.google.com/spreadsheets/d/your-summary-sheet-id" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📊 Teacher Summary</h2>
-        <p class="text-gray-600">See weekly logs of what you’ve taught and homework assigned.</p>
-      </a>
+      <!-- Forms Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="https://forms.gle/your-teacher-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">👩‍🏫 Teacher Attendance</h2>
+          <p class="text-gray-600">Record daily IN/OUT for teachers.</p>
+        </a>
+        <a href="https://forms.gle/your-non-teaching-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">🧹 Non-Teaching Staff</h2>
+          <p class="text-gray-600">Log support staff attendance here.</p>
+        </a>
+        <a href="https://forms.gle/your-enquiry-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">📞 Enquiry Form</h2>
+          <p class="text-gray-600">Capture leads and new student enquiries.</p>
+        </a>
+        <a href="https://forms.gle/your-test-marks-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry</h2>
+          <p class="text-gray-600">Enter and track marks for each test.</p>
+        </a>
+        <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">📖 Syllabus Completion</h2>
+          <p class="text-gray-600">Log completed chapters per subject and class.</p>
+        </a>
+        <a href="https://forms.gle/your-homework-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">📚 Homework Log</h2>
+          <p class="text-gray-600">Daily homework update and completion tracking.</p>
+        </a>
+        <a href="https://forms.gle/NWka4SDasWtGhCxw6" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">🗒️ Daily Teaching Log</h2>
+          <p class="text-gray-600">Log what was taught today and homework given by teachers.</p>
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/your-summary-sheet-id" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2">📊 Teacher Summary</h2>
+          <p class="text-gray-600">See weekly logs of what you’ve taught and homework assigned.</p>
+        </a>
+      </div>
     </div>
   </div>
 
-  <script>
+ <script>
+    const correctUsername = "admin";
+    const correctPassword = "k12pass";
+
+    function checkLogin() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      const message = document.getElementById('login-message');
+      if (username === correctUsername && password === correctPassword) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('face-recognition-ui').style.display = 'block';
+      } else {
+        message.innerText = "Invalid username or password.";
+      }
+    }
+   
     const video = document.getElementById('video');
     const statusEl = document.getElementById('status');
     const recentAttendance = {};
