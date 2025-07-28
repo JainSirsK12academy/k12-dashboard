@@ -21,23 +21,29 @@
 </head>
 <body class="bg-gray-100 font-[Inter] p-4">
 
-  <!-- Login Screen -->
-  <div id="login-screen" class="text-center p-8">
-    <h2 class="text-2xl font-semibold mb-4">🔒 Login Required</h2>
-    <input type="text" id="login-username" placeholder="Username" class="p-2 w-64 rounded border mb-2" /><br>
-    <input type="password" id="login-password" placeholder="Password" class="p-2 w-64 rounded border mb-4" /><br>
-    <button onclick="checkLogin()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login</button>
-    <p id="login-message" class="text-red-600 mt-2"></p>
-  </div>
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
 
-  <!-- Dashboard UI -->
-  <div id="face-recognition-ui" style="display:none;">
-    <div class="max-w-4xl mx-auto">
-      <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
+    <!-- Face Recognition Attendance -->
+    <div class="bg-white p-6 rounded-2xl shadow mb-6">
+      <h2 class="text-2xl font-semibold mb-4">📷 Student Attendance (Face Recognition)</h2>
 
-      <!-- Face Recognition Attendance -->
-      <div class="bg-white p-6 rounded-2xl shadow mb-6">
-        <h2 class="text-2xl font-semibold mb-4">📷 Student Attendance (Face Recognition)</h2>
+      <!-- Login Trigger -->
+      <div id="face-section-gate">
+        <button onclick="showLoginScreen()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">🔐 Login to Use</button>
+      </div>
+
+      <!-- Login Screen -->
+      <div id="login-screen" style="display:none;" class="text-center p-6">
+        <h2 class="text-xl font-semibold mb-4">🔒 Face Recognition Login</h2>
+        <input type="text" id="login-username" placeholder="Username" class="p-2 w-64 rounded border mb-2" /><br>
+        <input type="password" id="login-password" placeholder="Password" class="p-2 w-64 rounded border mb-4" /><br>
+        <button onclick="checkLogin()" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login</button>
+        <p id="login-message" class="text-red-600 mt-2"></p>
+      </div>
+
+      <!-- Hidden Face Recognition UI -->
+      <div id="face-recognition-ui" style="display: none;">
         <video id="video" width="100%" autoplay muted class="rounded mb-4"></video>
         <div class="flex gap-4 my-4">
           <button id="inBtn" onclick="setAttendanceStatus('IN')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">IN</button>
@@ -48,68 +54,66 @@
         <button onclick="startFaceRecognition()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Face Recognition</button>
         <p id="status" class="mt-4 text-green-600 font-semibold"></p>
       </div>
+    </div>
 
-      <!-- Forms Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <a href="https://forms.gle/your-teacher-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-          <h2 class="text-xl font-semibold mb-2">👩‍🏫 Teacher Attendance</h2>
-          <p class="text-gray-600">Record daily IN/OUT for teachers.</p>
-        </a>
-        <a href="https://forms.gle/your-non-teaching-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-          <h2 class="text-xl font-semibold mb-2">🧹 Non-Teaching Staff</h2>
-          <p class="text-gray-600">Log support staff attendance here.</p>
-        </a>
-        <a href="https://forms.gle/PA3fFG7ww23fUBij6" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-          <h2 class="text-xl font-semibold mb-2">📞 Enquiry Form</h2>
-          <p class="text-gray-600">Capture leads and new student enquiries.</p>
-        </a>
-        
-      <!-- Compact Test Marks Entry Card with Dropdown -->
-<div class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition relative">
-  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry</h2>
-  <p class="text-gray-600 mb-3">Select class to enter test marks:</p>
-  <select onchange="openTestMarksForm(this.value)" class="w-full border border-gray-300 rounded px-4 py-2">
-    <option value="">-- Select Class --</option>
-    <option value="https://forms.gle/pEgPVGXasuc47yfUA">8 CBSE</option>
-    <option value="https://forms.gle/fhE4CbLod4Xrs3bf8">9 CBSE</option>
-    <option value="https://forms.gle/eXPi9Y5c9Faa9JHcA">10 CBSE</option>
-    <option value="https://forms.gle/your-form-link-8ssc">8 SSC</option>
-    <option value="https://forms.gle/8u8QM7ujbTSnQFua7">9 SSC</option>
-    <option value="https://forms.gle/8Q4W1Wn6dDucEooD8">10 SSC</option>
-  </select>
-</div>
+    <!-- Forms Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <a href="https://forms.gle/your-teacher-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold mb-2">👩‍🏫 Teacher Attendance</h2>
+        <p class="text-gray-600">Record daily IN/OUT for teachers.</p>
+      </a>
+      <a href="https://forms.gle/your-non-teaching-attendance-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold mb-2">🧹 Non-Teaching Staff</h2>
+        <p class="text-gray-600">Log support staff attendance here.</p>
+      </a>
+      <a href="https://forms.gle/PA3fFG7ww23fUBij6" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold mb-2">📞 Enquiry Form</h2>
+        <p class="text-gray-600">Capture leads and new student enquiries.</p>
+      </a>
 
-<script>
-  function openTestMarksForm(url) {
-    if (url) {
-      window.open(url, '_blank');
-    }
-  }
-</script>
-
-        <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-          <h2 class="text-xl font-semibold mb-2">📖 Syllabus Completion</h2>
-          <p class="text-gray-600">Log completed chapters per subject and class.</p>
-        </a>
-        <a href="https://forms.gle/your-homework-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-          <h2 class="text-xl font-semibold mb-2">📚 Homework Log</h2>
-          <p class="text-gray-600">Daily homework update and completion tracking.</p>
-        </a>
-        <a href="https://forms.gle/NWka4SDasWtGhCxw6" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-          <h2 class="text-xl font-semibold mb-2">🗒️ Daily Teaching Log</h2>
-          <p class="text-gray-600">Log what was taught today and homework given by teachers.</p>
-        </a>
-        <a href="https://docs.google.com/spreadsheets/d/your-summary-sheet-id" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-          <h2 class="text-xl font-semibold mb-2">📊 Teacher Summary</h2>
-          <p class="text-gray-600">See weekly logs of what you’ve taught and homework assigned.</p>
-        </a>
+      <!-- Test Marks Entry Dropdown -->
+      <div class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition relative">
+        <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry</h2>
+        <p class="text-gray-600 mb-3">Select class to enter test marks:</p>
+        <select onchange="openTestMarksForm(this.value)" class="w-full border border-gray-300 rounded px-4 py-2">
+          <option value="">-- Select Class --</option>
+          <option value="https://forms.gle/pEgPVGXasuc47yfUA">8 CBSE</option>
+          <option value="https://forms.gle/fhE4CbLod4Xrs3bf8">9 CBSE</option>
+          <option value="https://forms.gle/eXPi9Y5c9Faa9JHcA">10 CBSE</option>
+          <option value="https://forms.gle/your-form-link-8ssc">8 SSC</option>
+          <option value="https://forms.gle/8u8QM7ujbTSnQFua7">9 SSC</option>
+          <option value="https://forms.gle/8Q4W1Wn6dDucEooD8">10 SSC</option>
+        </select>
       </div>
+
+      <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold mb-2">📖 Syllabus Completion</h2>
+        <p class="text-gray-600">Log completed chapters per subject and class.</p>
+      </a>
+      <a href="https://forms.gle/your-homework-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold mb-2">📚 Homework Log</h2>
+        <p class="text-gray-600">Daily homework update and completion tracking.</p>
+      </a>
+      <a href="https://forms.gle/NWka4SDasWtGhCxw6" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold mb-2">🗒️ Daily Teaching Log</h2>
+        <p class="text-gray-600">Log what was taught today and homework given by teachers.</p>
+      </a>
+      <a href="https://docs.google.com/spreadsheets/d/your-summary-sheet-id" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
+        <h2 class="text-xl font-semibold mb-2">📊 Teacher Summary</h2>
+        <p class="text-gray-600">See weekly logs of what you’ve taught and homework assigned.</p>
+      </a>
     </div>
   </div>
 
- <script>
+  <!-- JS Logic -->
+  <script>
     const correctUsername = "admin";
     const correctPassword = "k12pass";
+
+    function showLoginScreen() {
+      document.getElementById('face-section-gate').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'block';
+    }
 
     function checkLogin() {
       const username = document.getElementById('login-username').value;
@@ -120,6 +124,12 @@
         document.getElementById('face-recognition-ui').style.display = 'block';
       } else {
         message.innerText = "Invalid username or password.";
+      }
+    }
+
+    function openTestMarksForm(url) {
+      if (url) {
+        window.open(url, '_blank');
       }
     }
    
@@ -295,10 +305,6 @@ method: 'POST',
   function checkLogin() {
     const username = document.getElementById("login-username").value.trim();
     const password = document.getElementById("login-password").value.trim();
-
-    // ✅ Change these to your preferred credentials
-    const validUsername = "admin";
-    const validPassword = "12345";
 
     if (username === validUsername && password === validPassword) {
       document.getElementById("login-screen").style.display = "none";
