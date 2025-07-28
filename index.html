@@ -64,41 +64,28 @@
           <p class="text-gray-600">Capture leads and new student enquiries.</p>
         </a>
         
-        <!-- Test Marks Entry - 8 CBSE -->
-<a href="https://forms.gle/your-form-link-8cbse" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry – 8 CBSE</h2>
-  <p class="text-gray-600">Enter marks for 8th CBSE tests.</p>
-</a>
+      <!-- Compact Test Marks Entry Card with Dropdown -->
+<div class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition relative">
+  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry</h2>
+  <p class="text-gray-600 mb-3">Select class to enter test marks:</p>
+  <select onchange="openTestMarksForm(this.value)" class="w-full border border-gray-300 rounded px-4 py-2">
+    <option value="">-- Select Class --</option>
+    <option value="https://forms.gle/pEgPVGXasuc47yfUA">8 CBSE</option>
+    <option value="https://forms.gle/fhE4CbLod4Xrs3bf8">9 CBSE</option>
+    <option value="https://forms.gle/eXPi9Y5c9Faa9JHcA">10 CBSE</option>
+    <option value="https://forms.gle/your-form-link-8ssc">8 SSC</option>
+    <option value="https://forms.gle/8u8QM7ujbTSnQFua7">9 SSC</option>
+    <option value="https://forms.gle/8Q4W1Wn6dDucEooD8">10 SSC</option>
+  </select>
+</div>
 
-<!-- Test Marks Entry - 9 CBSE -->
-<a href="https://forms.gle/your-form-link-9cbse" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry – 9 CBSE</h2>
-  <p class="text-gray-600">Enter marks for 9th CBSE tests.</p>
-</a>
-
-<!-- Test Marks Entry - 10 CBSE -->
-<a href="https://forms.gle/your-form-link-10cbse" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry – 10 CBSE</h2>
-  <p class="text-gray-600">Enter marks for 10th CBSE tests.</p>
-</a>
-
-<!-- Test Marks Entry - 8 SSC -->
-<a href="https://forms.gle/your-form-link-8ssc" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry – 8 SSC</h2>
-  <p class="text-gray-600">Enter marks for 8th SSC tests.</p>
-</a>
-
-<!-- Test Marks Entry - 9 SSC -->
-<a href="https://forms.gle/your-form-link-9ssc" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry – 9 SSC</h2>
-  <p class="text-gray-600">Enter marks for 9th SSC tests.</p>
-</a>
-
-<!-- Test Marks Entry - 10 SSC -->
-<a href="https://forms.gle/your-form-link-10ssc" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-  <h2 class="text-xl font-semibold mb-2">📝 Test Marks Entry – 10 SSC</h2>
-  <p class="text-gray-600">Enter marks for 10th SSC tests.</p>
-</a>
+<script>
+  function openTestMarksForm(url) {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+</script>
 
         <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
           <h2 class="text-xl font-semibold mb-2">📖 Syllabus Completion</h2>
