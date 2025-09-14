@@ -86,14 +86,27 @@
         </select>
       </div>
 
+<!-- Homework Log Dropdown -->
+<div class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition relative">
+  <h2 class="text-xl font-semibold mb-2">📚 Homework Log</h2>
+  <p class="text-gray-600 mb-3">Select class to enter homework:</p>
+  <select onchange="openHomeworkForm(this.value)" class="w-full border border-gray-300 rounded px-4 py-2">
+    <option value="">-- Select Class --</option>
+    <option value="https://forms.gle/your-homework-form-8cbse">8 CBSE</option>
+    <option value="https://forms.gle/your-homework-form-9cbse">9 CBSE</option>
+    <option value="https://forms.gle/your-homework-form-10cbse">10 CBSE</option>
+    <option value="https://forms.gle/your-homework-form-9ssc">9 SSC</option>
+    <option value="https://forms.gle/your-homework-form-10ssc">10 SSC</option>
+  </select>
+</div>
+
+
+      
       <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
         <h2 class="text-xl font-semibold mb-2">📖 Syllabus Completion</h2>
         <p class="text-gray-600">Log completed chapters per subject and class.</p>
       </a>
-      <a href="https://forms.gle/your-homework-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📚 Homework Log</h2>
-        <p class="text-gray-600">Daily homework update and completion tracking.</p>
-      </a>
+  
       <a href="https://forms.gle/NWka4SDasWtGhCxw6" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
         <h2 class="text-xl font-semibold mb-2">🗒️ Daily Teaching Log</h2>
         <p class="text-gray-600">Log what was taught today and homework given by teachers.</p>
@@ -299,3 +312,4 @@ method: 'POST',
 </script>
 </body>
 </html>
+
