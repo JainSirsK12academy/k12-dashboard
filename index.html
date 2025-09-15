@@ -146,7 +146,11 @@
         window.open(url, '_blank');
       }
     }
-   
+   function openHomeworkForm(url) {
+  if (url) {
+    window.open(url, '_blank');
+  }
+}
     const video = document.getElementById('video');
     const statusEl = document.getElementById('status');
     const recentAttendance = {};
@@ -312,5 +316,6 @@ method: 'POST',
 </script>
 </body>
 </html>
+
 
 
