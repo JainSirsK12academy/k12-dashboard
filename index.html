@@ -100,6 +100,19 @@
   </select>
 </div>
 
+<!-- Monthly Feedback Dropdown -->
+<div class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition relative">
+  <h2 class="text-xl font-semibold mb-2">🗓️ Monthly Feedback to Students</h2>
+  <p class="text-gray-600 mb-3">Select class to give feedback:</p>
+  <select onchange="openFeedbackForm(this.value)" class="w-full border border-gray-300 rounded px-4 py-2">
+    <option value="">-- Select Class --</option>
+    <option value="https://forms.gle/your-form-link-8cbse">8 CBSE</option>
+    <option value="https://forms.gle/your-form-link-9cbse">9 CBSE</option>
+    <option value="https://forms.gle/PK1LVb6fVnQkEkLa9">10 CBSE</option>
+    <option value="https://forms.gle/your-form-link-9ssc">9 SSC</option>
+    <option value="https://forms.gle/your-form-link-10ssc">10 SSC</option>
+  </select>
+</div>
 
       
       <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
@@ -151,6 +164,13 @@
     window.open(url, '_blank');
   }
 }
+
+  function openFeedbackForm(url) {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
+
     const video = document.getElementById('video');
     const statusEl = document.getElementById('status');
     const recentAttendance = {};
@@ -316,6 +336,7 @@ method: 'POST',
 </script>
 </body>
 </html>
+
 
 
 
