@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jain Sir's K12 Academy - Student Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body { font-family: Inter, sans-serif; }
+    .card { transition: all .2s ease; }
+    .card:hover { transform: translateY(-2px); }
+    .progress-bar { transition: width .5s ease; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- Header -->
+  <header class="bg-white border-b sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-extrabold">Jain Sir's K12 Academy</h1>
+        <p class="text-xs sm:text-sm text-slate-500">Building future beyond marks</p>
+      </div>
+      <div class="text-right">
+        <p id="studentNameHeader" class="font-semibold">Student Name</p>
+        <p id="studentClassHeader" class="text-sm text-slate-500">Class</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+
+    <!-- Welcome -->
+    <section class="mb-6">
+      <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-3xl p-6 shadow">
+        <p class="text-blue-100 text-sm">Student Dashboard</p>
+        <h2 class="text-2xl sm:text-3xl font-bold mt-1">
+          Welcome, <span id="studentNameWelcome">Student</span> 👋
+        </h2>
+        <p class="mt-2 text-blue-100">
+          Here is your latest academic information from Jain Sir's K12 Academy.
+        </p>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-2xl shadow-sm p-5 border">
+        <p class="text-sm text-slate-500">Upcoming Tests</p>
+        <p id="upcomingTestCount" class="text-3xl font-bold mt-1">0</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm p-5 border">
+        <p class="text-sm text-slate-500">Syllabus Completed</p>
+        <p id="syllabusPercent" class="text-3xl font-bold mt-1">0%</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm p-5 border">
+        <p class="text-sm text-slate-500">K12 Test Average</p>
+        <p id="performanceAverage" class="text-3xl font-bold mt-1">--</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm p-5 border">
+        <p class="text-sm text-slate-500">Attendance</p>
+        <p id="attendancePercent" class="text-3xl font-bold mt-1">--</p>
+      </div>
+    </section>
+
+    <!-- Main Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <!-- Upcoming Tests -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-3xl mb-2">📝</div>
+            <h3 class="text-xl font-bold">K12 Test Details</h3>
+            <p class="text-sm text-slate-500 mt-1">Upcoming academy tests</p>
+          </div>
+          <span id="testBadge" class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">0 tests</span>
+        </div>
+
+        <div id="upcomingTestsList" class="mt-5 space-y-3"></div>
+      </div>
+
+      <!-- Syllabus -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-3xl mb-2">📚</div>
+            <h3 class="text-xl font-bold">Syllabus Progress</h3>
+            <p class="text-sm text-slate-500 mt-1">Topics covered in class</p>
+          </div>
+          <span id="syllabusBadge" class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">0%</span>
+        </div>
+
+        <div id="syllabusList" class="mt-5 space-y-4"></div>
+      </div>
+
+      <!-- School Marks -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="text-3xl mb-2">🏫</div>
+        <h3 class="text-xl font-bold">School Test Marks</h3>
+        <p class="text-sm text-slate-500 mt-1">
+          Enter marks received in school tests and exams.
+        </p>
+
+        <button
+          onclick="openSchoolMarksForm()"
+          class="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition">
+          ➕ Update School Test Marks
+        </button>
+
+        <div class="mt-4 p-3 bg-blue-50 rounded-xl text-sm text-blue-800">
+          Your entries will be recorded through the academy's Google Form.
+        </div>
+      </div>
+
+      <!-- Fees -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="text-3xl mb-2">💰</div>
+            <h3 class="text-xl font-bold">Fee Status</h3>
+            <p class="text-sm text-slate-500 mt-1">Your academy fee information</p>
+          </div>
+          <span id="feeStatus" class="px-3 py-1 rounded-full text-xs font-semibold">Loading</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-5">
+          <div class="bg-slate-50 rounded-xl p-4">
+            <p class="text-xs text-slate-500">Total Fee</p>
+            <p id="totalFee" class="font-bold text-lg">₹--</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-4">
+            <p class="text-xs text-slate-500">Paid</p>
+            <p id="paidFee" class="font-bold text-lg">₹--</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-4">
+            <p class="text-xs text-slate-500">Pending</p>
+            <p id="pendingFee" class="font-bold text-lg">₹--</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-4">
+            <p class="text-xs text-slate-500">Next Due Date</p>
+            <p id="feeDueDate" class="font-bold text-lg">--</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- K12 Performance -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="text-3xl mb-2">📊</div>
+        <h3 class="text-xl font-bold">K12 Test Performance</h3>
+        <p class="text-sm text-slate-500 mt-1">Recent academy test results</p>
+
+        <div id="performanceList" class="mt-5 space-y-3"></div>
+      </div>
+
+      <!-- Attendance -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="text-3xl mb-2">📅</div>
+        <h3 class="text-xl font-bold">Attendance</h3>
+        <p class="text-sm text-slate-500 mt-1">Academy attendance record</p>
+
+        <div class="mt-5">
+          <div class="flex justify-between text-sm mb-2">
+            <span>Attendance</span>
+            <span id="attendanceText" class="font-semibold">--</span>
+          </div>
+          <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div id="attendanceBar" class="progress-bar h-full bg-green-500 rounded-full" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-5">
+          <div class="bg-slate-50 rounded-xl p-4">
+            <p class="text-xs text-slate-500">Present</p>
+            <p id="presentCount" class="font-bold text-lg">--</p>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-4">
+            <p class="text-xs text-slate-500">Absent</p>
+            <p id="absentCount" class="font-bold text-lg">--</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Homework -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="text-3xl mb-2">📖</div>
+        <h3 class="text-xl font-bold">Homework</h3>
+        <p class="text-sm text-slate-500 mt-1">Latest homework assigned</p>
+
+        <div id="homeworkList" class="mt-5 space-y-3"></div>
+      </div>
+
+      <!-- Rewards -->
+      <div class="card bg-white rounded-3xl shadow-sm border p-6">
+        <div class="text-3xl mb-2">🏆</div>
+        <h3 class="text-xl font-bold">Rewards & Achievements</h3>
+        <p class="text-sm text-slate-500 mt-1">Your recent achievements</p>
+
+        <div id="rewardsList" class="mt-5 space-y-3"></div>
+      </div>
+
+    </section>
+
+    <!-- Announcements -->
+    <section class="mt-5 bg-white rounded-3xl shadow-sm border p-6">
+      <div class="flex items-center gap-3">
+        <div class="text-3xl">🔔</div>
+        <div>
+          <h3 class="text-xl font-bold">Important Announcements</h3>
+          <p class="text-sm text-slate-500">Updates from Jain Sir's K12 Academy</p>
+        </div>
+      </div>
+
+      <div id="announcementsList" class="mt-5 space-y-3"></div>
+    </section>
+
+    <footer class="text-center text-sm text-slate-400 py-8">
+      Jain Sir's K12 Academy • Building future beyond marks
+    </footer>
+
+  </main>
+
+<script>
+/*
+===========================================================
+JAIN SIR'S K12 ACADEMY - STUDENT DASHBOARD
+VERSION 1 - GITHUB FRONTEND
+
+IMPORTANT:
+1. Replace STUDENT_DATA with your Google Apps Script/API data.
+2. Replace SCHOOL_MARKS_FORM_URL with your Google Form.
+3. Do NOT put Google Sheet private credentials in this file.
+4. The Google Apps Script Web App should return only the
+   student's permitted data.
+===========================================================
+*/
+
+// ---------------------------------------------------------
+// STUDENT CONFIGURATION - TEMPORARY FOR VERSION 1
+// ---------------------------------------------------------
+const STUDENT_DATA = {
+  name: "Student Name",
+  className: "10 CBSE"
+};
+
+// ---------------------------------------------------------
+// GOOGLE FORM
+// ---------------------------------------------------------
+const SCHOOL_MARKS_FORM_URL = "https://forms.gle/YOUR-SCHOOL-MARKS-FORM";
+
+// ---------------------------------------------------------
+// PLACEHOLDER DATA
+// This will later be replaced by live Google Sheets data.
+// ---------------------------------------------------------
+const dashboardData = {
+
+  upcomingTests: [
+    {
+      date: "10 Aug 2026",
+      subject: "Mathematics",
+      topic: "Quadratic Equations",
+      totalMarks: 25
+    },
+    {
+      date: "13 Aug 2026",
+      subject: "Science",
+      topic: "Light - Reflection and Refraction",
+      totalMarks: 25
+    }
+  ],
+
+  syllabus: [
+    { subject: "Mathematics", completed: 75 },
+    { subject: "Science", completed: 68 },
+    { subject: "English", completed: 72 },
+    { subject: "Social Science", completed: 70 }
+  ],
+
+  performance: [
+    { test: "Mathematics - Test 1", marks: 22, total: 25 },
+    { test: "Science - Test 1", marks: 20, total: 25 },
+    { test: "Mathematics - Test 2", marks: 18, total: 25 }
+  ],
+
+  attendance: {
+    present: 47,
+    absent: 3,
+    percentage: 94
+  },
+
+  homework: [
+    {
+      subject: "Mathematics",
+      topic: "Quadratic Equations - Exercise 4.2",
+      date: "08 Aug 2026"
+    },
+    {
+      subject: "Science",
+      topic: "Light - Questions 1-10",
+      date: "08 Aug 2026"
+    }
+  ],
+
+  fees: {
+    total: 30000,
+    paid: 25000,
+    pending: 5000,
+    dueDate: "15 Aug 2026"
+  },
+
+  rewards: [
+    "Weekly Improvement Award",
+    "Top Performer - Mathematics"
+  ],
+
+  announcements: [
+    {
+      title: "Saturday Test",
+      message: "Please bring the dedicated A4 test notebook."
+    },
+    {
+      title: "Important Reminder",
+      message: "Students should bring their test notebook regularly."
+    }
+  ]
+};
+
+
+// ---------------------------------------------------------
+// INITIALIZE
+// ---------------------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("studentNameHeader").textContent = STUDENT_DATA.name;
+  document.getElementById("studentClassHeader").textContent = STUDENT_DATA.className;
+  document.getElementById("studentNameWelcome").textContent = STUDENT_DATA.name;
+
+  renderUpcomingTests();
+  renderSyllabus();
+  renderPerformance();
+  renderAttendance();
+  renderHomework();
+  renderFees();
+  renderRewards();
+  renderAnnouncements();
+});
+
+
+// ---------------------------------------------------------
+// SCHOOL MARKS FORM
+// ---------------------------------------------------------
+function openSchoolMarksForm() {
+  if (!SCHOOL_MARKS_FORM_URL || SCHOOL_MARKS_FORM_URL.includes("YOUR-")) {
+    alert("School Test Marks Google Form link has not been added yet.");
+    return;
+  }
+
+  window.open(SCHOOL_MARKS_FORM_URL, "_blank");
+}
+
+
+// ---------------------------------------------------------
+// UPCOMING TESTS
+// ---------------------------------------------------------
+function renderUpcomingTests() {
+  const list = document.getElementById("upcomingTestsList");
+  const tests = dashboardData.upcomingTests;
+
+  document.getElementById("upcomingTestCount").textContent = tests.length;
+  document.getElementById("testBadge").textContent =
+    `${tests.length} upcoming`;
+
+  if (!tests.length) {
+    list.innerHTML = `<p class="text-sm text-slate-500">No upcoming tests.</p>`;
+    return;
+  }
+
+  list.innerHTML = tests.map(test => `
+    <div class="border rounded-2xl p-4">
+      <div class="flex justify-between gap-3">
+        <div>
+          <p class="font-semibold">${test.subject}</p>
+          <p class="text-sm text-slate-500">${test.topic}</p>
+        </div>
+        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg h-fit">
+          ${test.totalMarks} marks
+        </span>
+      </div>
+      <p class="text-sm font-medium mt-3">📅 ${test.date}</p>
+    </div>
+  `).join("");
+}
+
+
+// ---------------------------------------------------------
+// SYLLABUS
+// ---------------------------------------------------------
+function renderSyllabus() {
+  const list = document.getElementById("syllabusList");
+  const subjects = dashboardData.syllabus;
+
+  const overall = Math.round(
+    subjects.reduce((sum, item) => sum + item.completed, 0) / subjects.length
+  );
+
+  document.getElementById("syllabusPercent").textContent = `${overall}%`;
+  document.getElementById("syllabusBadge").textContent = `${overall}%`;
+
+  list.innerHTML = subjects.map(item => `
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <span class="font-medium">${item.subject}</span>
+        <span>${item.completed}%</span>
+      </div>
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="progress-bar h-full bg-blue-600 rounded-full"
+             style="width:${item.completed}%"></div>
+      </div>
+    </div>
+  `).join("");
+}
+
+
+// ---------------------------------------------------------
+// PERFORMANCE
+// ---------------------------------------------------------
+function renderPerformance() {
+  const list = document.getElementById("performanceList");
+  const tests = dashboardData.performance;
+
+  if (!tests.length) {
+    document.getElementById("performanceAverage").textContent = "--";
+    list.innerHTML = `<p class="text-sm text-slate-500">No test results available.</p>`;
+    return;
+  }
+
+  const average =
+    tests.reduce((sum, test) => sum + (test.marks / test.total * 100), 0)
+    / tests.length;
+
+  document.getElementById("performanceAverage").textContent =
+    `${Math.round(average)}%`;
+
+  list.innerHTML = tests.map(test => {
+    const percentage = Math.round(test.marks / test.total * 100);
+
+    return `
+      <div class="flex items-center justify-between border rounded-xl p-3">
+        <div>
+          <p class="font-medium text-sm">${test.test}</p>
+          <p class="text-xs text-slate-500">${test.marks}/${test.total}</p>
+        </div>
+        <span class="font-bold">${percentage}%</span>
+      </div>
+    `;
+  }).join("");
+}
+
+
+// ---------------------------------------------------------
+// ATTENDANCE
+// ---------------------------------------------------------
+function renderAttendance() {
+  const attendance = dashboardData.attendance;
+
+  document.getElementById("attendancePercent").textContent =
+    `${attendance.percentage}%`;
+
+  document.getElementById("attendanceText").textContent =
+    `${attendance.percentage}%`;
+
+  document.getElementById("attendanceBar").style.width =
+    `${attendance.percentage}%`;
+
+  document.getElementById("presentCount").textContent =
+    attendance.present;
+
+  document.getElementById("absentCount").textContent =
+    attendance.absent;
+}
+
+
+// ---------------------------------------------------------
+// HOMEWORK
+// ---------------------------------------------------------
+function renderHomework() {
+  const list = document.getElementById("homeworkList");
+  const homework = dashboardData.homework;
+
+  if (!homework.length) {
+    list.innerHTML = `<p class="text-sm text-slate-500">No recent homework.</p>`;
+    return;
+  }
+
+  list.innerHTML = homework.map(item => `
+    <div class="border rounded-xl p-3">
+      <div class="flex justify-between gap-3">
+        <p class="font-semibold text-sm">${item.subject}</p>
+        <span class="text-xs text-slate-400">${item.date}</span>
+      </div>
+      <p class="text-sm text-slate-600 mt-1">${item.topic}</p>
+    </div>
+  `).join("");
+}
+
+
+// ---------------------------------------------------------
+// FEES
+// ---------------------------------------------------------
+function renderFees() {
+  const fees = dashboardData.fees;
+
+  document.getElementById("totalFee").textContent =
+    formatCurrency(fees.total);
+
+  document.getElementById("paidFee").textContent =
+    formatCurrency(fees.paid);
+
+  document.getElementById("pendingFee").textContent =
+    formatCurrency(fees.pending);
+
+  document.getElementById("feeDueDate").textContent =
+    fees.dueDate;
+
+  const status = document.getElementById("feeStatus");
+
+  if (fees.pending <= 0) {
+    status.textContent = "Paid";
+    status.className =
+      "bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-semibold";
+  } else {
+    status.textContent = "Pending";
+    status.className =
+      "bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold";
+  }
+}
+
+function formatCurrency(amount) {
+  return "₹" + Number(amount).toLocaleString("en-IN");
+}
+
+
+// ---------------------------------------------------------
+// REWARDS
+// ---------------------------------------------------------
+function renderRewards() {
+  const list = document.getElementById("rewardsList");
+  const rewards = dashboardData.rewards;
+
+  if (!rewards.length) {
+    list.innerHTML = `<p class="text-sm text-slate-500">No achievements yet.</p>`;
+    return;
+  }
+
+  list.innerHTML = rewards.map(reward => `
+    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-sm font-medium">
+      🏆 ${reward}
+    </div>
+  `).join("");
+}
+
+
+// ---------------------------------------------------------
+// ANNOUNCEMENTS
+// ---------------------------------------------------------
+function renderAnnouncements() {
+  const list = document.getElementById("announcementsList");
+  const announcements = dashboardData.announcements;
+
+  if (!announcements.length) {
+    list.innerHTML = `<p class="text-sm text-slate-500">No announcements.</p>`;
+    return;
+  }
+
+  list.innerHTML = announcements.map(item => `
+    <div class="border-l-4 border-blue-600 bg-blue-50 rounded-r-xl p-4">
+      <p class="font-semibold">${item.title}</p>
+      <p class="text-sm text-slate-600 mt-1">${item.message}</p>
+    </div>
+  `).join("");
+}
+
+
+// ---------------------------------------------------------
+// FUTURE LIVE DATA CONNECTION
+// ---------------------------------------------------------
+/*
+Example:
+
+async function loadStudentDashboard(studentId) {
+  const response = await fetch(
+    "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL?studentId=" +
+    encodeURIComponent(studentId)
+  );
+
+  const data = await response.json();
+
+  // Then assign:
+  // dashboardData.upcomingTests = data.upcomingTests;
+  // dashboardData.syllabus = data.syllabus;
+  // dashboardData.performance = data.performance;
+  // dashboardData.attendance = data.attendance;
+  // dashboardData.homework = data.homework;
+  // dashboardData.fees = data.fees;
+  // dashboardData.rewards = data.rewards;
+  // dashboardData.announcements = data.announcements;
+
+  // Re-render all sections.
+}
+*/
+</script>
+
+</body>
+</html>
