@@ -25,10 +25,26 @@
         <h1 class="text-xl sm:text-2xl font-extrabold">Jain Sir's K12 Academy</h1>
         <p class="text-xs sm:text-sm text-slate-500">Building future beyond marks</p>
       </div>
-      <div class="text-right">
-        <p id="studentNameHeader" class="font-semibold">Student Name</p>
-        <p id="studentClassHeader" class="text-sm text-slate-500">Class</p>
-      </div>
+     <div class="flex items-center gap-4">
+
+  <div class="text-right">
+    <p id="studentNameHeader" class="font-semibold">
+      Student Name
+    </p>
+
+    <p id="studentClassHeader" class="text-sm text-slate-500">
+      Class
+    </p>
+  </div>
+
+  <button
+    onclick="logoutStudent()"
+    class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition"
+  >
+    Logout
+  </button>
+
+</div>
     </div>
   </header>
 
@@ -1301,17 +1317,12 @@ function escapeHtml(value) {
 
 function logoutStudent() {
 
-  localStorage.removeItem(
-    "studentRollNo"
-  );
+  // Remove logged-in student information
+  localStorage.removeItem("studentRollNo");
+  localStorage.removeItem("studentData");
 
-  localStorage.removeItem(
-    "studentData"
-  );
-
-
-  window.location.href =
-    "student-login.html";
+  // Return to student login
+  window.location.href = "student-login.html";
 
 }
 
