@@ -1003,48 +1003,89 @@ async function loadTestResults() {
 
 async function loadAttendance() {
 
-  /*
-   * Attendance endpoint has not yet been created
-   * in the Apps Script code shown so far.
-   *
-   * Therefore we do NOT invent attendance data.
-   *
-   * Keep the dashboard showing "--" until the endpoint
-   * is added.
-   */
+  try {
+
+    const data =
+      await apiRequest("attendance");
 
 
-  document.getElementById(
-    "attendancePercent"
-  ).textContent =
-    "--";
+    const present =
+      Number(data.present || 0);
+
+    const absent =
+      Number(data.absent || 0);
+
+    const total =
+      Number(data.total || 0);
+
+    const percentage =
+      Number(data.percentage || 0);
 
 
-  document.getElementById(
-    "attendanceText"
-  ).textContent =
-    "--";
+    document.getElementById(
+      "attendancePercent"
+    ).textContent =
+      percentage + "%";
 
 
-  document.getElementById(
-    "presentCount"
-  ).textContent =
-    "--";
+    document.getElementById(
+      "attendanceText"
+    ).textContent =
+      percentage + "%";
 
 
-  document.getElementById(
-    "absentCount"
-  ).textContent =
-    "--";
+    document.getElementById(
+      "presentCount"
+    ).textContent =
+      present;
 
 
-  document.getElementById(
-    "attendanceBar"
-  ).style.width =
-    "0%";
+    document.getElementById(
+      "absentCount"
+    ).textContent =
+      absent;
+
+
+    document.getElementById(
+      "attendanceBar"
+    ).style.width =
+      percentage + "%";
+
+
+  } catch (error) {
+
+    console.error(
+      "Attendance error:",
+      error
+    );
+
+
+    document.getElementById(
+      "attendancePercent"
+    ).textContent =
+      "--";
+
+
+    document.getElementById(
+      "attendanceText"
+    ).textContent =
+      "--";
+
+
+    document.getElementById(
+      "presentCount"
+    ).textContent =
+      "--";
+
+
+    document.getElementById(
+      "absentCount"
+    ).textContent =
+      "--";
+
+  }
 
 }
-
 
 // =========================================================
 // SCHOOL MARKS FORM
