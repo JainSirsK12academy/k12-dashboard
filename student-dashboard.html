@@ -25,16 +25,40 @@
         <h1 class="text-xl sm:text-2xl font-extrabold">Jain Sir's K12 Academy</h1>
         <p class="text-xs sm:text-sm text-slate-500">Building future beyond marks</p>
       </div>
-     <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
+
+  <!-- Student Photo -->
+  <img
+    id="studentPhoto"
+    src=""
+    alt="Student"
+    class="w-12 h-12 rounded-full object-cover border-2 border-slate-200 hidden"
+  >
+
+  <!-- Default icon if photo cannot be loaded -->
+  <div
+    id="studentPhotoFallback"
+    class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl"
+  >
+    👤
+  </div>
 
   <div class="text-right">
-    <p id="studentNameHeader" class="font-semibold">
+
+    <p
+      id="studentNameHeader"
+      class="font-semibold"
+    >
       Student Name
     </p>
 
-    <p id="studentClassHeader" class="text-sm text-slate-500">
+    <p
+      id="studentClassHeader"
+      class="text-sm text-slate-500"
+    >
       Class
     </p>
+
   </div>
 
   <button
@@ -45,7 +69,7 @@
   </button>
 
 </div>
-    </div>
+</div>
   </header>
 
   <main class="max-w-6xl mx-auto px-4 py-6">
