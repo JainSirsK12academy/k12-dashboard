@@ -1,1 +1,489 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Student Login | Jain Sir's K12 Academy</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+
+  <div class="w-full max-w-md">
+
+    <!-- Academy Header -->
+    <div class="text-center mb-8">
+
+      <h1 class="text-3xl font-extrabold text-slate-900">
+        Jain Sir's K12 Academy
+      </h1>
+
+      <p class="text-slate-500 mt-2">
+        Building future beyond marks
+      </p>
+
+    </div>
+
+
+    <!-- Login Card -->
+    <div class="bg-white border shadow-sm rounded-3xl p-7 sm:p-8">
+
+      <div class="mb-6">
+
+        <div class="text-4xl mb-3">
+          🎓
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-900">
+          Student Login
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-1">
+          Enter your Roll Number and password to access your dashboard.
+        </p>
+
+      </div>
+
+
+      <form id="loginForm">
+
+        <!-- Roll Number -->
+        <div class="mb-5">
+
+          <label
+            for="rollNo"
+            class="block text-sm font-semibold text-slate-700 mb-2"
+          >
+            Roll Number
+          </label>
+
+          <input
+            id="rollNo"
+            type="text"
+            autocomplete="username"
+            placeholder="Enter Roll Number"
+            required
+            class="w-full border border-slate-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+
+        </div>
+
+
+        <!-- Password -->
+        <div class="mb-3">
+
+          <label
+            for="password"
+            class="block text-sm font-semibold text-slate-700 mb-2"
+          >
+            Password
+          </label>
+
+          <div class="relative">
+
+            <input
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Enter Password"
+              required
+              class="w-full border border-slate-300 rounded-xl px-4 py-3 pr-14 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+
+            <button
+              type="button"
+              id="togglePassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-blue-600"
+            >
+              Show
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- Error Message -->
+        <div
+          id="message"
+          class="hidden mt-4 rounded-xl px-4 py-3 text-sm"
+        ></div>
+
+
+        <!-- Login -->
+        <button
+          id="loginButton"
+          type="submit"
+          class="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-semibold py-3.5 rounded-xl transition"
+        >
+          Login to Dashboard
+        </button>
+
+      </form>
+
+    </div>
+
+
+    <p class="text-center text-xs text-slate-400 mt-6">
+      Jain Sir's K12 Academy
+    </p>
+
+  </div>
+
+
+<script>
+
+// ========================================================
+// APPS SCRIPT API
+// ========================================================
+
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbx3WcFm4HvfXqkjSqVbCq-YtfBnY4qoP7jIbTxukfh4cBdq9k_S3xCw-7PYaRN73-vapA/exec";
+
+
+// ========================================================
+// ELEMENTS
+// ========================================================
+
+const loginForm =
+  document.getElementById("loginForm");
+
+const loginButton =
+  document.getElementById("loginButton");
+
+const message =
+  document.getElementById("message");
+
+const passwordInput =
+  document.getElementById("password");
+
+const togglePassword =
+  document.getElementById("togglePassword");
+
+
+// ========================================================
+// SHOW / HIDE PASSWORD
+// ========================================================
+
+togglePassword.addEventListener("click", function () {
+
+  if (passwordInput.type === "password") {
+
+    passwordInput.type = "text";
+
+    togglePassword.textContent = "Hide";
+
+  } else {
+
+    passwordInput.type = "password";
+
+    togglePassword.textContent = "Show";
+
+  }
+
+});
+
+
+// ========================================================
+// LOGIN
+// ========================================================
+
+loginForm.addEventListener("submit", async function (event) {
+
+  event.preventDefault();
+
+
+  const rollNo =
+    document
+      .getElementById("rollNo")
+      .value
+      .trim();
+
+
+  const password =
+    document
+      .getElementById("password")
+      .value
+      .trim();
+
+
+  if (!rollNo || !password) {
+
+    showMessage(
+      "Please enter your Roll Number and password.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  setLoading(true);
+
+  hideMessage();
+
+
+  try {
+
+    const url =
+      API_URL +
+      "?action=login" +
+      "&rollNo=" +
+      encodeURIComponent(rollNo) +
+      "&password=" +
+      encodeURIComponent(password);
+
+
+    const response =
+      await fetch(url);
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Server returned error " + response.status
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    console.log(
+      "Login response:",
+      data
+    );
+
+
+    if (!data.success) {
+
+      showMessage(
+        data.message ||
+        "Incorrect Roll Number or password.",
+        "error"
+      );
+
+      setLoading(false);
+
+      return;
+
+    }
+
+
+    // ====================================================
+    // NORMALISE STUDENT DATA
+    // ====================================================
+
+    const source =
+      data.student ||
+      data.studentData ||
+      data;
+
+
+    const studentData = {
+
+      name:
+        source.name ||
+        source.studentName ||
+        "",
+
+      className:
+        source.className ||
+        source.class ||
+        "",
+
+      rollNo:
+        source.rollNo ||
+        rollNo
+
+    };
+
+
+    // ====================================================
+    // SAVE LOGIN SESSION
+    // ====================================================
+
+    localStorage.setItem(
+      "studentRollNo",
+      rollNo
+    );
+
+
+    localStorage.setItem(
+      "studentData",
+      JSON.stringify(studentData)
+    );
+
+
+    showMessage(
+      "Login successful. Opening your dashboard...",
+      "success"
+    );
+
+
+    // ====================================================
+    // OPEN DASHBOARD
+    // ====================================================
+
+    setTimeout(function () {
+
+      window.location.href =
+        "student-dashboard.html";
+
+    }, 500);
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Login error:",
+      error
+    );
+
+
+    showMessage(
+      "Unable to login right now. Please try again.",
+      "error"
+    );
+
+
+    setLoading(false);
+
+  }
+
+});
+
+
+// ========================================================
+// MESSAGE
+// ========================================================
+
+function showMessage(text, type) {
+
+  message.textContent =
+    text;
+
+
+  message.classList.remove(
+    "hidden",
+    "bg-red-50",
+    "text-red-700",
+    "border",
+    "border-red-200",
+    "bg-green-50",
+    "text-green-700",
+    "border-green-200"
+  );
+
+
+  if (type === "success") {
+
+    message.classList.add(
+      "bg-green-50",
+      "text-green-700",
+      "border",
+      "border-green-200"
+    );
+
+  } else {
+
+    message.classList.add(
+      "bg-red-50",
+      "text-red-700",
+      "border",
+      "border-red-200"
+    );
+
+  }
+
+}
+
+
+function hideMessage() {
+
+  message.classList.add(
+    "hidden"
+  );
+
+}
+
+
+// ========================================================
+// LOADING STATE
+// ========================================================
+
+function setLoading(isLoading) {
+
+  if (isLoading) {
+
+    loginButton.disabled =
+      true;
+
+    loginButton.textContent =
+      "Logging in...";
+
+  } else {
+
+    loginButton.disabled =
+      false;
+
+    loginButton.textContent =
+      "Login to Dashboard";
+
+  }
+
+}
+
+
+// ========================================================
+// ALREADY LOGGED IN
+// ========================================================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const existingRollNo =
+      localStorage.getItem(
+        "studentRollNo"
+      );
+
+
+    if (existingRollNo) {
+
+      // Do not automatically redirect yet.
+      // This allows us to test the login page manually.
+
+      console.log(
+        "Existing student session:",
+        existingRollNo
+      );
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
