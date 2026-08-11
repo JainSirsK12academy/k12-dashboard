@@ -228,393 +228,1052 @@
   </main>
 
 <script>
+
 /*
 ===========================================================
-JAIN SIR'S K12 ACADEMY - STUDENT DASHBOARD
-VERSION 1 - GITHUB FRONTEND
+JAIN SIR'S K12 ACADEMY
+STUDENT DASHBOARD - LIVE VERSION
+===========================================================
 
-IMPORTANT:
-1. Replace STUDENT_DATA with your Google Apps Script/API data.
-2. Replace SCHOOL_MARKS_FORM_URL with your Google Form.
-3. Do NOT put Google Sheet private credentials in this file.
-4. The Google Apps Script Web App should return only the
-   student's permitted data.
+Existing Apps Script endpoints used:
+
+?action=login&rollNo=...&password=...
+?action=syllabus&rollNo=...
+?action=tests&rollNo=...
+?action=testResults&rollNo=...
+
 ===========================================================
 */
 
-// ---------------------------------------------------------
-// STUDENT CONFIGURATION - TEMPORARY FOR VERSION 1
-// ---------------------------------------------------------
-const STUDENT_DATA = {
-  name: "Student Name",
-  className: "10 CBSE"
-};
 
-// ---------------------------------------------------------
-// GOOGLE FORM
-// ---------------------------------------------------------
-const SCHOOL_MARKS_FORM_URL = "https://forms.gle/YOUR-SCHOOL-MARKS-FORM";
+// =========================================================
+// GOOGLE APPS SCRIPT WEB APP URL
+// =========================================================
 
-// ---------------------------------------------------------
-// PLACEHOLDER DATA
-// This will later be replaced by live Google Sheets data.
-// ---------------------------------------------------------
-const dashboardData = {
-
-  upcomingTests: [
-    {
-      date: "10 Aug 2026",
-      subject: "Mathematics",
-      topic: "Quadratic Equations",
-      totalMarks: 25
-    },
-    {
-      date: "13 Aug 2026",
-      subject: "Science",
-      topic: "Light - Reflection and Refraction",
-      totalMarks: 25
-    }
-  ],
-
-  syllabus: [
-    { subject: "Mathematics", completed: 75 },
-    { subject: "Science", completed: 68 },
-    { subject: "English", completed: 72 },
-    { subject: "Social Science", completed: 70 }
-  ],
-
-  performance: [
-    { test: "Mathematics - Test 1", marks: 22, total: 25 },
-    { test: "Science - Test 1", marks: 20, total: 25 },
-    { test: "Mathematics - Test 2", marks: 18, total: 25 }
-  ],
-
-  attendance: {
-    present: 47,
-    absent: 3,
-    percentage: 94
-  },
-
-  homework: [
-    {
-      subject: "Mathematics",
-      topic: "Quadratic Equations - Exercise 4.2",
-      date: "08 Aug 2026"
-    },
-    {
-      subject: "Science",
-      topic: "Light - Questions 1-10",
-      date: "08 Aug 2026"
-    }
-  ],
-
-  fees: {
-    total: 30000,
-    paid: 25000,
-    pending: 5000,
-    dueDate: "15 Aug 2026"
-  },
-
-  rewards: [
-    "Weekly Improvement Award",
-    "Top Performer - Mathematics"
-  ],
-
-  announcements: [
-    {
-      title: "Saturday Test",
-      message: "Please bring the dedicated A4 test notebook."
-    },
-    {
-      title: "Important Reminder",
-      message: "Students should bring their test notebook regularly."
-    }
-  ]
-};
+const API_URL =
+  "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 
 
-// ---------------------------------------------------------
+// =========================================================
+// SCHOOL MARKS GOOGLE FORM
+// =========================================================
+
+const SCHOOL_MARKS_FORM_URL =
+  "https://forms.gle/YOUR-SCHOOL-MARKS-FORM";
+
+
+// =========================================================
+// STUDENT SESSION
+// =========================================================
+
+let studentRollNo = "";
+
+let studentData = {};
+
+
+// =========================================================
 // INITIALIZE
-// ---------------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("studentNameHeader").textContent = STUDENT_DATA.name;
-  document.getElementById("studentClassHeader").textContent = STUDENT_DATA.className;
-  document.getElementById("studentNameWelcome").textContent = STUDENT_DATA.name;
+// =========================================================
 
-  renderUpcomingTests();
-  renderSyllabus();
-  renderPerformance();
-  renderAttendance();
-  renderHomework();
-  renderFees();
-  renderRewards();
-  renderAnnouncements();
+document.addEventListener("DOMContentLoaded", function () {
+
+  /*
+   * We expect the student's login information to already
+   * be stored by your existing login page.
+   *
+   * We first try localStorage.
+   */
+
+  studentRollNo =
+    localStorage.getItem("studentRollNo") || "";
+
+  const storedStudent =
+    localStorage.getItem("studentData");
+
+  if (storedStudent) {
+
+    try {
+
+      studentData =
+        JSON.parse(storedStudent);
+
+    } catch (err) {
+
+      studentData = {};
+
+    }
+
+  }
+
+
+  /*
+   * If no Roll No is available, show a clear message.
+   */
+
+  if (!studentRollNo) {
+
+    showDashboardMessage(
+      "Student login information not found. Please login again."
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * Display whatever student information is already
+   * available while live data loads.
+   */
+
+  if (studentData.name) {
+
+    setStudentName(
+      studentData.name
+    );
+
+  }
+
+  if (studentData.className) {
+
+    setStudentClass(
+      studentData.className
+    );
+
+  }
+
+
+  /*
+   * Load live dashboard data.
+   */
+
+  loadStudentInformation();
+
 });
 
 
-// ---------------------------------------------------------
-// SCHOOL MARKS FORM
-// ---------------------------------------------------------
-function openSchoolMarksForm() {
-  if (!SCHOOL_MARKS_FORM_URL || SCHOOL_MARKS_FORM_URL.includes("YOUR-")) {
-    alert("School Test Marks Google Form link has not been added yet.");
-    return;
+// =========================================================
+// LOAD ALL STUDENT INFORMATION
+// =========================================================
+
+async function loadStudentInformation() {
+
+  try {
+
+    await loadStudentLogin();
+
+    await Promise.all([
+
+      loadUpcomingTests(),
+
+      loadSyllabus(),
+
+      loadTestResults(),
+
+      loadAttendance()
+
+    ]);
+
   }
 
-  window.open(SCHOOL_MARKS_FORM_URL, "_blank");
+  catch (error) {
+
+    console.error(
+      "Dashboard loading error:",
+      error
+    );
+
+  }
+
 }
 
 
-// ---------------------------------------------------------
+// =========================================================
+// GENERIC API FUNCTION
+// =========================================================
+
+async function apiRequest(action) {
+
+  const url =
+    API_URL +
+    "?action=" +
+    encodeURIComponent(action) +
+    "&rollNo=" +
+    encodeURIComponent(studentRollNo);
+
+
+  const response =
+    await fetch(url);
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      "API request failed: " +
+      response.status
+    );
+
+  }
+
+
+  const data =
+    await response.json();
+
+
+  if (!data.success) {
+
+    throw new Error(
+      data.message ||
+      "Unable to load data."
+    );
+
+  }
+
+
+  return data;
+
+}
+
+
+// =========================================================
+// LOAD STUDENT LOGIN / BASIC INFORMATION
+// =========================================================
+
+async function loadStudentLogin() {
+
+  /*
+   * Login endpoint requires password.
+   *
+   * The dashboard normally does not need to call login
+   * again if the login page has already stored studentData.
+   *
+   * Therefore, if studentData already exists, use it.
+   */
+
+  if (
+    studentData &&
+    studentData.name
+  ) {
+
+    setStudentName(
+      studentData.name
+    );
+
+  }
+
+  if (
+    studentData &&
+    studentData.className
+  ) {
+
+    setStudentClass(
+      studentData.className
+    );
+
+  }
+
+}
+
+
+// =========================================================
+// SET STUDENT NAME
+// =========================================================
+
+function setStudentName(name) {
+
+  const header =
+    document.getElementById(
+      "studentNameHeader"
+    );
+
+  const welcome =
+    document.getElementById(
+      "studentNameWelcome"
+    );
+
+
+  if (header) {
+
+    header.textContent =
+      name || "Student";
+
+  }
+
+
+  if (welcome) {
+
+    welcome.textContent =
+      name || "Student";
+
+  }
+
+}
+
+
+// =========================================================
+// SET STUDENT CLASS
+// =========================================================
+
+function setStudentClass(className) {
+
+  const element =
+    document.getElementById(
+      "studentClassHeader"
+    );
+
+
+  if (element) {
+
+    element.textContent =
+      className || "";
+
+  }
+
+}
+
+
+// =========================================================
 // UPCOMING TESTS
-// ---------------------------------------------------------
-function renderUpcomingTests() {
-  const list = document.getElementById("upcomingTestsList");
-  const tests = dashboardData.upcomingTests;
+// =========================================================
 
-  document.getElementById("upcomingTestCount").textContent = tests.length;
-  document.getElementById("testBadge").textContent =
-    `${tests.length} upcoming`;
+async function loadUpcomingTests() {
 
-  if (!tests.length) {
-    list.innerHTML = `<p class="text-sm text-slate-500">No upcoming tests.</p>`;
-    return;
+  const list =
+    document.getElementById(
+      "upcomingTestsList"
+    );
+
+
+  try {
+
+    const data =
+      await apiRequest("tests");
+
+
+    const tests =
+      data.tests || [];
+
+
+    document.getElementById(
+      "upcomingTestCount"
+    ).textContent =
+      tests.length;
+
+
+    document.getElementById(
+      "testBadge"
+    ).textContent =
+      tests.length +
+      (
+        tests.length === 1
+          ? " upcoming"
+          : " upcoming"
+      );
+
+
+    if (!tests.length) {
+
+      list.innerHTML =
+        '<p class="text-sm text-slate-500">' +
+        'No upcoming tests.' +
+        '</p>';
+
+      return;
+
+    }
+
+
+    list.innerHTML =
+      tests.map(function (test) {
+
+        return `
+
+          <div class="border rounded-2xl p-4">
+
+            <div class="flex justify-between gap-3">
+
+              <div>
+
+                <p class="font-semibold">
+                  ${escapeHtml(test.subject || "")}
+                </p>
+
+                <p class="text-sm text-slate-500">
+                  ${escapeHtml(test.chapter || "")}
+                </p>
+
+              </div>
+
+              <span
+                class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg h-fit">
+
+                ${escapeHtml(test.testName || "")}
+
+              </span>
+
+            </div>
+
+            <p class="text-sm font-medium mt-3">
+
+              📅 ${escapeHtml(test.date || "")}
+
+            </p>
+
+          </div>
+
+        `;
+
+      }).join("");
+
+
   }
 
-  list.innerHTML = tests.map(test => `
-    <div class="border rounded-2xl p-4">
-      <div class="flex justify-between gap-3">
-        <div>
-          <p class="font-semibold">${test.subject}</p>
-          <p class="text-sm text-slate-500">${test.topic}</p>
-        </div>
-        <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg h-fit">
-          ${test.totalMarks} marks
-        </span>
-      </div>
-      <p class="text-sm font-medium mt-3">📅 ${test.date}</p>
-    </div>
-  `).join("");
+  catch (error) {
+
+    console.error(
+      "Upcoming tests error:",
+      error
+    );
+
+
+    list.innerHTML =
+      '<p class="text-sm text-red-500">' +
+      'Unable to load upcoming tests.' +
+      '</p>';
+
+  }
+
 }
 
 
-// ---------------------------------------------------------
+// =========================================================
 // SYLLABUS
-// ---------------------------------------------------------
-function renderSyllabus() {
-  const list = document.getElementById("syllabusList");
-  const subjects = dashboardData.syllabus;
+// =========================================================
 
-  const overall = Math.round(
-    subjects.reduce((sum, item) => sum + item.completed, 0) / subjects.length
-  );
+async function loadSyllabus() {
 
-  document.getElementById("syllabusPercent").textContent = `${overall}%`;
-  document.getElementById("syllabusBadge").textContent = `${overall}%`;
-
-  list.innerHTML = subjects.map(item => `
-    <div>
-      <div class="flex justify-between text-sm mb-1">
-        <span class="font-medium">${item.subject}</span>
-        <span>${item.completed}%</span>
-      </div>
-      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div class="progress-bar h-full bg-blue-600 rounded-full"
-             style="width:${item.completed}%"></div>
-      </div>
-    </div>
-  `).join("");
-}
+  const list =
+    document.getElementById(
+      "syllabusList"
+    );
 
 
-// ---------------------------------------------------------
-// PERFORMANCE
-// ---------------------------------------------------------
-function renderPerformance() {
-  const list = document.getElementById("performanceList");
-  const tests = dashboardData.performance;
+  try {
 
-  if (!tests.length) {
-    document.getElementById("performanceAverage").textContent = "--";
-    list.innerHTML = `<p class="text-sm text-slate-500">No test results available.</p>`;
-    return;
+    const data =
+      await apiRequest("syllabus");
+
+
+    /*
+     * Your Apps Script returns:
+     *
+     * data.overall
+     * data.subjects
+     * data.chapters
+     */
+
+
+    const overall =
+      data.overall &&
+      typeof data.overall.percentage !== "undefined"
+        ? Number(data.overall.percentage)
+        : 0;
+
+
+    document.getElementById(
+      "syllabusPercent"
+    ).textContent =
+      overall + "%";
+
+
+    document.getElementById(
+      "syllabusBadge"
+    ).textContent =
+      overall + "%";
+
+
+    const subjects =
+      data.subjects || {};
+
+
+    const subjectNames =
+      Object.keys(subjects);
+
+
+    if (!subjectNames.length) {
+
+      list.innerHTML =
+        '<p class="text-sm text-slate-500">' +
+        'No syllabus data available.' +
+        '</p>';
+
+      return;
+
+    }
+
+
+    list.innerHTML =
+      subjectNames.map(function (subject) {
+
+        const item =
+          subjects[subject];
+
+
+        const percentage =
+          Number(item.percentage || 0);
+
+
+        return `
+
+          <div>
+
+            <div class="flex justify-between text-sm mb-1">
+
+              <span class="font-medium">
+                ${escapeHtml(subject)}
+              </span>
+
+              <span>
+                ${percentage}%
+              </span>
+
+            </div>
+
+
+            <div
+              class="h-2 bg-slate-100 rounded-full overflow-hidden">
+
+              <div
+                class="progress-bar h-full bg-blue-600 rounded-full"
+                style="width:${percentage}%">
+              </div>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }).join("");
+
+
   }
 
-  const average =
-    tests.reduce((sum, test) => sum + (test.marks / test.total * 100), 0)
-    / tests.length;
+  catch (error) {
 
-  document.getElementById("performanceAverage").textContent =
-    `${Math.round(average)}%`;
+    console.error(
+      "Syllabus error:",
+      error
+    );
 
-  list.innerHTML = tests.map(test => {
-    const percentage = Math.round(test.marks / test.total * 100);
 
-    return `
-      <div class="flex items-center justify-between border rounded-xl p-3">
-        <div>
-          <p class="font-medium text-sm">${test.test}</p>
-          <p class="text-xs text-slate-500">${test.marks}/${test.total}</p>
-        </div>
-        <span class="font-bold">${percentage}%</span>
-      </div>
-    `;
-  }).join("");
+    list.innerHTML =
+      '<p class="text-sm text-red-500">' +
+      'Unable to load syllabus.' +
+      '</p>';
+
+  }
+
 }
 
 
-// ---------------------------------------------------------
+// =========================================================
+// K12 TEST RESULTS
+// =========================================================
+
+async function loadTestResults() {
+
+  const list =
+    document.getElementById(
+      "performanceList"
+    );
+
+
+  try {
+
+    const data =
+      await apiRequest("testResults");
+
+
+    const results =
+      data.results || [];
+
+
+    /*
+     * No results yet
+     */
+
+    if (!results.length) {
+
+      document.getElementById(
+        "performanceAverage"
+      ).textContent =
+        "--";
+
+
+      list.innerHTML =
+        '<p class="text-sm text-slate-500">' +
+        'No test results available yet.' +
+        '</p>';
+
+      return;
+
+    }
+
+
+    /*
+     * Calculate average percentage
+     */
+
+    let totalPercentage = 0;
+
+    let validResults = 0;
+
+
+    results.forEach(function (result) {
+
+      const marks =
+        Number(result.marks);
+
+      const total =
+        Number(result.totalMarks);
+
+
+      if (
+        !isNaN(marks) &&
+        !isNaN(total) &&
+        total > 0
+      ) {
+
+        totalPercentage +=
+          (marks / total) * 100;
+
+        validResults++;
+
+      }
+
+    });
+
+
+    const average =
+      validResults > 0
+        ? Math.round(
+            totalPercentage /
+            validResults
+          )
+        : 0;
+
+
+    document.getElementById(
+      "performanceAverage"
+    ).textContent =
+      average + "%";
+
+
+    /*
+     * Display most recent results first.
+     */
+
+    const recentResults =
+      results.slice(-5).reverse();
+
+
+    list.innerHTML =
+      recentResults.map(function (result) {
+
+        const marks =
+          Number(result.marks);
+
+        const total =
+          Number(result.totalMarks);
+
+
+        let percentage = 0;
+
+
+        if (
+          !isNaN(marks) &&
+          !isNaN(total) &&
+          total > 0
+        ) {
+
+          percentage =
+            Math.round(
+              (marks / total) * 100
+            );
+
+        }
+
+
+        return `
+
+          <div
+            class="flex items-center justify-between border rounded-xl p-3">
+
+            <div>
+
+              <p class="font-medium text-sm">
+
+                ${escapeHtml(
+                  result.subject || ""
+                )}
+
+                ${result.testName
+                  ? " - " +
+                    escapeHtml(result.testName)
+                  : ""
+                }
+
+              </p>
+
+
+              <p class="text-xs text-slate-500">
+
+                ${escapeHtml(
+                  result.chapter || ""
+                )}
+
+                ${
+                  result.date
+                    ? " • " +
+                      escapeHtml(result.date)
+                    : ""
+                }
+
+              </p>
+
+
+              <p class="text-xs text-slate-500 mt-1">
+
+                ${escapeHtml(
+                  result.marks || ""
+                )}
+                /
+                ${escapeHtml(
+                  result.totalMarks || ""
+                )}
+
+              </p>
+
+            </div>
+
+
+            <span class="font-bold">
+
+              ${percentage}%
+
+            </span>
+
+          </div>
+
+        `;
+
+      }).join("");
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Test results error:",
+      error
+    );
+
+
+    document.getElementById(
+      "performanceAverage"
+    ).textContent =
+      "--";
+
+
+    list.innerHTML =
+      '<p class="text-sm text-red-500">' +
+      'Unable to load test results.' +
+      '</p>';
+
+  }
+
+}
+
+
+// =========================================================
 // ATTENDANCE
-// ---------------------------------------------------------
-function renderAttendance() {
-  const attendance = dashboardData.attendance;
+// =========================================================
 
-  document.getElementById("attendancePercent").textContent =
-    `${attendance.percentage}%`;
+async function loadAttendance() {
 
-  document.getElementById("attendanceText").textContent =
-    `${attendance.percentage}%`;
+  /*
+   * Attendance endpoint has not yet been created
+   * in the Apps Script code shown so far.
+   *
+   * Therefore we do NOT invent attendance data.
+   *
+   * Keep the dashboard showing "--" until the endpoint
+   * is added.
+   */
 
-  document.getElementById("attendanceBar").style.width =
-    `${attendance.percentage}%`;
 
-  document.getElementById("presentCount").textContent =
-    attendance.present;
+  document.getElementById(
+    "attendancePercent"
+  ).textContent =
+    "--";
 
-  document.getElementById("absentCount").textContent =
-    attendance.absent;
+
+  document.getElementById(
+    "attendanceText"
+  ).textContent =
+    "--";
+
+
+  document.getElementById(
+    "presentCount"
+  ).textContent =
+    "--";
+
+
+  document.getElementById(
+    "absentCount"
+  ).textContent =
+    "--";
+
+
+  document.getElementById(
+    "attendanceBar"
+  ).style.width =
+    "0%";
+
 }
 
 
-// ---------------------------------------------------------
-// HOMEWORK
-// ---------------------------------------------------------
-function renderHomework() {
-  const list = document.getElementById("homeworkList");
-  const homework = dashboardData.homework;
+// =========================================================
+// SCHOOL MARKS FORM
+// =========================================================
 
-  if (!homework.length) {
-    list.innerHTML = `<p class="text-sm text-slate-500">No recent homework.</p>`;
+function openSchoolMarksForm() {
+
+  if (
+    !SCHOOL_MARKS_FORM_URL ||
+    SCHOOL_MARKS_FORM_URL.includes(
+      "YOUR-SCHOOL"
+    )
+  ) {
+
+    alert(
+      "School Test Marks Google Form link has not been added yet."
+    );
+
     return;
+
   }
 
-  list.innerHTML = homework.map(item => `
-    <div class="border rounded-xl p-3">
-      <div class="flex justify-between gap-3">
-        <p class="font-semibold text-sm">${item.subject}</p>
-        <span class="text-xs text-slate-400">${item.date}</span>
-      </div>
-      <p class="text-sm text-slate-600 mt-1">${item.topic}</p>
-    </div>
-  `).join("");
-}
 
-
-// ---------------------------------------------------------
-// FEES
-// ---------------------------------------------------------
-function renderFees() {
-  const fees = dashboardData.fees;
-
-  document.getElementById("totalFee").textContent =
-    formatCurrency(fees.total);
-
-  document.getElementById("paidFee").textContent =
-    formatCurrency(fees.paid);
-
-  document.getElementById("pendingFee").textContent =
-    formatCurrency(fees.pending);
-
-  document.getElementById("feeDueDate").textContent =
-    fees.dueDate;
-
-  const status = document.getElementById("feeStatus");
-
-  if (fees.pending <= 0) {
-    status.textContent = "Paid";
-    status.className =
-      "bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-semibold";
-  } else {
-    status.textContent = "Pending";
-    status.className =
-      "bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold";
-  }
-}
-
-function formatCurrency(amount) {
-  return "₹" + Number(amount).toLocaleString("en-IN");
-}
-
-
-// ---------------------------------------------------------
-// REWARDS
-// ---------------------------------------------------------
-function renderRewards() {
-  const list = document.getElementById("rewardsList");
-  const rewards = dashboardData.rewards;
-
-  if (!rewards.length) {
-    list.innerHTML = `<p class="text-sm text-slate-500">No achievements yet.</p>`;
-    return;
-  }
-
-  list.innerHTML = rewards.map(reward => `
-    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-sm font-medium">
-      🏆 ${reward}
-    </div>
-  `).join("");
-}
-
-
-// ---------------------------------------------------------
-// ANNOUNCEMENTS
-// ---------------------------------------------------------
-function renderAnnouncements() {
-  const list = document.getElementById("announcementsList");
-  const announcements = dashboardData.announcements;
-
-  if (!announcements.length) {
-    list.innerHTML = `<p class="text-sm text-slate-500">No announcements.</p>`;
-    return;
-  }
-
-  list.innerHTML = announcements.map(item => `
-    <div class="border-l-4 border-blue-600 bg-blue-50 rounded-r-xl p-4">
-      <p class="font-semibold">${item.title}</p>
-      <p class="text-sm text-slate-600 mt-1">${item.message}</p>
-    </div>
-  `).join("");
-}
-
-
-// ---------------------------------------------------------
-// FUTURE LIVE DATA CONNECTION
-// ---------------------------------------------------------
-/*
-Example:
-
-async function loadStudentDashboard(studentId) {
-  const response = await fetch(
-    "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL?studentId=" +
-    encodeURIComponent(studentId)
+  window.open(
+    SCHOOL_MARKS_FORM_URL,
+    "_blank"
   );
 
-  const data = await response.json();
-
-  // Then assign:
-  // dashboardData.upcomingTests = data.upcomingTests;
-  // dashboardData.syllabus = data.syllabus;
-  // dashboardData.performance = data.performance;
-  // dashboardData.attendance = data.attendance;
-  // dashboardData.homework = data.homework;
-  // dashboardData.fees = data.fees;
-  // dashboardData.rewards = data.rewards;
-  // dashboardData.announcements = data.announcements;
-
-  // Re-render all sections.
 }
-*/
-</script>
 
+
+// =========================================================
+// HOMEWORK
+// =========================================================
+
+/*
+ * Homework currently comes from the Teaching Log.
+ *
+ * Your current Apps Script does not yet expose a
+ * homework endpoint.
+ *
+ * Therefore we do not use placeholder homework.
+ */
+
+function loadHomework() {
+
+  const list =
+    document.getElementById(
+      "homeworkList"
+    );
+
+
+  list.innerHTML =
+    '<p class="text-sm text-slate-500">' +
+    'Homework information will appear here.' +
+    '</p>';
+
+}
+
+
+// =========================================================
+// FEES
+// =========================================================
+
+/*
+ * Fee API is not yet part of the Apps Script endpoints
+ * shown in this project.
+ *
+ * Do not display fake fee information.
+ */
+
+function loadFees() {
+
+  document.getElementById(
+    "totalFee"
+  ).textContent =
+    "₹--";
+
+
+  document.getElementById(
+    "paidFee"
+  ).textContent =
+    "₹--";
+
+
+  document.getElementById(
+    "pendingFee"
+  ).textContent =
+    "₹--";
+
+
+  document.getElementById(
+    "feeDueDate"
+  ).textContent =
+    "--";
+
+
+  document.getElementById(
+    "feeStatus"
+  ).textContent =
+    "Not available";
+
+}
+
+
+// =========================================================
+// REWARDS
+// =========================================================
+
+function loadRewards() {
+
+  const list =
+    document.getElementById(
+      "rewardsList"
+    );
+
+
+  list.innerHTML =
+    '<p class="text-sm text-slate-500">' +
+    'No achievements available yet.' +
+    '</p>';
+
+}
+
+
+// =========================================================
+// ANNOUNCEMENTS
+// =========================================================
+
+function loadAnnouncements() {
+
+  const list =
+    document.getElementById(
+      "announcementsList"
+    );
+
+
+  list.innerHTML =
+    '<p class="text-sm text-slate-500">' +
+    'No announcements available.' +
+    '</p>';
+
+}
+
+
+// =========================================================
+// DASHBOARD MESSAGE
+// =========================================================
+
+function showDashboardMessage(message) {
+
+  console.warn(message);
+
+
+  const lists = [
+
+    "upcomingTestsList",
+    "syllabusList",
+    "performanceList"
+
+  ];
+
+
+  lists.forEach(function (id) {
+
+    const element =
+      document.getElementById(id);
+
+
+    if (element) {
+
+      element.innerHTML =
+        '<p class="text-sm text-slate-500">' +
+        escapeHtml(message) +
+        '</p>';
+
+    }
+
+  });
+
+}
+
+
+// =========================================================
+// HTML ESCAPE
+// =========================================================
+
+function escapeHtml(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return "";
+
+  }
+
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+// =========================================================
+// OPTIONAL LOGOUT
+// =========================================================
+
+function logoutStudent() {
+
+  localStorage.removeItem(
+    "studentRollNo"
+  );
+
+  localStorage.removeItem(
+    "studentData"
+  );
+
+
+  window.location.href =
+    "index.html";
+
+}
+
+</script>
 </body>
 </html>
