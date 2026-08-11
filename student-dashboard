@@ -251,7 +251,7 @@ Existing Apps Script endpoints used:
 // =========================================================
 
 const API_URL =
-  "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+  "https://script.google.com/macros/s/AKfycbx3WcFm4HvfXqkjSqVbCq-YtfBnY4qoP7jIbTxukfh4cBdq9k_S3xCw-7PYaRN73-vapA/exec";
 
 
 // =========================================================
