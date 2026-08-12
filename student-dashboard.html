@@ -1,293 +1,723 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jain Sir's K12 Academy - Student Dashboard</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Jain Sir's K12 Academy - Student Dashboard
+  </title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    body { font-family: Inter, sans-serif; }
-    .card { transition: all .2s ease; }
-    .card:hover { transform: translateY(-2px); }
-    .progress-bar { transition: width .5s ease; }
+
+    body {
+      font-family: Inter, sans-serif;
+    }
+
+    .card {
+      transition: all .2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .progress-bar {
+      transition: width .5s ease;
+    }
+
   </style>
+
 </head>
+
 
 <body class="bg-slate-50 text-slate-800">
 
-  <!-- Header -->
-  <header class="bg-white border-b sticky top-0 z-20">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div>
-        <h1 class="text-xl sm:text-2xl font-extrabold">Jain Sir's K12 Academy</h1>
-        <p class="text-xs sm:text-sm text-slate-500">Building future beyond marks</p>
-      </div>
-    <div class="flex items-center gap-3">
 
-  <!-- Student Photo -->
-  <img
-    id="studentPhoto"
-    src=""
-    alt="Student"
-    class="w-12 h-12 rounded-full object-cover border-2 border-slate-200 hidden"
-  >
+<!-- =====================================================
+HEADER
+===================================================== -->
 
-  <!-- Default icon if photo cannot be loaded -->
+<header class="bg-white border-b sticky top-0 z-20">
+
   <div
-    id="studentPhotoFallback"
-    class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl"
+    class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between"
   >
-    👤
+
+    <div>
+
+      <h1 class="text-xl sm:text-2xl font-extrabold">
+        Jain Sir's K12 Academy
+      </h1>
+
+      <p class="text-xs sm:text-sm text-slate-500">
+        Building future beyond marks
+      </p>
+
+    </div>
+
+
+    <div class="flex items-center gap-4">
+
+      <div class="text-right">
+
+        <p
+          id="studentNameHeader"
+          class="font-semibold"
+        >
+          Student Name
+        </p>
+
+        <p
+          id="studentClassHeader"
+          class="text-sm text-slate-500"
+        >
+          Class
+        </p>
+
+      </div>
+
+
+      <button
+        onclick="logoutStudent()"
+        class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition"
+      >
+        Logout
+      </button>
+
+    </div>
+
   </div>
 
-  <div class="text-right">
+</header>
 
-    <p
-      id="studentNameHeader"
-      class="font-semibold"
-    >
-      Student Name
+
+
+<main class="max-w-6xl mx-auto px-4 py-6">
+
+
+<!-- =====================================================
+WELCOME
+===================================================== -->
+
+<section class="mb-6">
+
+  <div
+    class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-3xl p-6 shadow"
+  >
+
+    <p class="text-blue-100 text-sm">
+      Student Dashboard
+    </p>
+
+    <h2 class="text-2xl sm:text-3xl font-bold mt-1">
+
+      Welcome,
+      <span id="studentNameWelcome">
+        Student
+      </span>
+      👋
+
+    </h2>
+
+    <p class="mt-2 text-blue-100">
+
+      Here is your latest academic information from
+      Jain Sir's K12 Academy.
+
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+QUICK STATS
+===================================================== -->
+
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+
+  <div class="bg-white rounded-2xl shadow-sm p-5 border">
+
+    <p class="text-sm text-slate-500">
+      Upcoming Tests
     </p>
 
     <p
-      id="studentClassHeader"
-      class="text-sm text-slate-500"
+      id="upcomingTestCount"
+      class="text-3xl font-bold mt-1"
     >
-      Class
+      0
     </p>
 
   </div>
+
+
+  <div class="bg-white rounded-2xl shadow-sm p-5 border">
+
+    <p class="text-sm text-slate-500">
+      Syllabus Completed
+    </p>
+
+    <p
+      id="syllabusPercent"
+      class="text-3xl font-bold mt-1"
+    >
+      0%
+    </p>
+
+  </div>
+
+
+  <div class="bg-white rounded-2xl shadow-sm p-5 border">
+
+    <p class="text-sm text-slate-500">
+      K12 Test Average
+    </p>
+
+    <p
+      id="performanceAverage"
+      class="text-3xl font-bold mt-1"
+    >
+      --
+    </p>
+
+  </div>
+
+
+  <div class="bg-white rounded-2xl shadow-sm p-5 border">
+
+    <p class="text-sm text-slate-500">
+      Attendance
+    </p>
+
+    <p
+      id="attendancePercent"
+      class="text-3xl font-bold mt-1"
+    >
+      --
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================================
+MAIN CARDS
+===================================================== -->
+
+<section class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+
+<!-- UPCOMING TESTS -->
+
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
+
+  <div class="flex items-start justify-between">
+
+    <div>
+
+      <div class="text-3xl mb-2">
+        📝
+      </div>
+
+      <h3 class="text-xl font-bold">
+        K12 Test Details
+      </h3>
+
+      <p class="text-sm text-slate-500 mt-1">
+        Upcoming academy tests
+      </p>
+
+    </div>
+
+
+    <span
+      id="testBadge"
+      class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold"
+    >
+      0 upcoming
+    </span>
+
+  </div>
+
+
+  <div
+    id="upcomingTestsList"
+    class="mt-5 space-y-3"
+  >
+
+    <p class="text-sm text-slate-400">
+      Loading tests...
+    </p>
+
+  </div>
+
+</div>
+
+
+
+<!-- SYLLABUS -->
+
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
+
+  <div class="flex items-start justify-between">
+
+    <div>
+
+      <div class="text-3xl mb-2">
+        📚
+      </div>
+
+      <h3 class="text-xl font-bold">
+        Syllabus Progress
+      </h3>
+
+      <p class="text-sm text-slate-500 mt-1">
+        Topics covered in class
+      </p>
+
+    </div>
+
+
+    <span
+      id="syllabusBadge"
+      class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-semibold"
+    >
+      0%
+    </span>
+
+  </div>
+
+
+  <div
+    id="syllabusList"
+    class="mt-5 space-y-4"
+  >
+
+    <p class="text-sm text-slate-400">
+      Loading syllabus...
+    </p>
+
+  </div>
+
+</div>
+
+
+
+<!-- SCHOOL MARKS -->
+
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
+
+  <div class="text-3xl mb-2">
+    🏫
+  </div>
+
+  <h3 class="text-xl font-bold">
+    School Test Marks
+  </h3>
+
+  <p class="text-sm text-slate-500 mt-1">
+
+    Enter marks received in school tests and exams.
+
+  </p>
+
 
   <button
-    onclick="logoutStudent()"
-    class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition"
+    onclick="openSchoolMarksForm()"
+    class="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition"
   >
-    Logout
+
+    ➕ Update School Test Marks
+
   </button>
 
+
+  <div
+    class="mt-4 p-3 bg-blue-50 rounded-xl text-sm text-blue-800"
+  >
+
+    Your entries will be recorded through the academy's
+    Google Form.
+
+  </div>
+
 </div>
+
+
+
+<!-- FEES -->
+
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
+
+  <div class="flex items-start justify-between">
+
+    <div>
+
+      <div class="text-3xl mb-2">
+        💰
+      </div>
+
+      <h3 class="text-xl font-bold">
+        Fee Status
+      </h3>
+
+      <p class="text-sm text-slate-500 mt-1">
+        Your academy fee information
+      </p>
+
+    </div>
+
+
+    <span
+      id="feeStatus"
+      class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100"
+    >
+      Not available
+    </span>
+
+  </div>
+
+
+  <div class="grid grid-cols-2 gap-3 mt-5">
+
+
+    <div class="bg-slate-50 rounded-xl p-4">
+
+      <p class="text-xs text-slate-500">
+        Total Fee
+      </p>
+
+      <p
+        id="totalFee"
+        class="font-bold text-lg"
+      >
+        ₹--
+      </p>
+
+    </div>
+
+
+    <div class="bg-slate-50 rounded-xl p-4">
+
+      <p class="text-xs text-slate-500">
+        Paid
+      </p>
+
+      <p
+        id="paidFee"
+        class="font-bold text-lg"
+      >
+        ₹--
+      </p>
+
+    </div>
+
+
+    <div class="bg-slate-50 rounded-xl p-4">
+
+      <p class="text-xs text-slate-500">
+        Pending
+      </p>
+
+      <p
+        id="pendingFee"
+        class="font-bold text-lg"
+      >
+        ₹--
+      </p>
+
+    </div>
+
+
+    <div class="bg-slate-50 rounded-xl p-4">
+
+      <p class="text-xs text-slate-500">
+        Next Due Date
+      </p>
+
+      <p
+        id="feeDueDate"
+        class="font-bold text-lg"
+      >
+        --
+      </p>
+
+    </div>
+
+  </div>
+
 </div>
-  </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-6">
 
-    <!-- Welcome -->
-    <section class="mb-6">
-      <div class="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-3xl p-6 shadow">
-        <p class="text-blue-100 text-sm">Student Dashboard</p>
-        <h2 class="text-2xl sm:text-3xl font-bold mt-1">
-          Welcome, <span id="studentNameWelcome">Student</span> 👋
-        </h2>
-        <p class="mt-2 text-blue-100">
-          Here is your latest academic information from Jain Sir's K12 Academy.
-        </p>
-      </div>
-    </section>
 
-    <!-- Quick Stats -->
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white rounded-2xl shadow-sm p-5 border">
-        <p class="text-sm text-slate-500">Upcoming Tests</p>
-        <p id="upcomingTestCount" class="text-3xl font-bold mt-1">0</p>
-      </div>
+<!-- TEST PERFORMANCE -->
 
-      <div class="bg-white rounded-2xl shadow-sm p-5 border">
-        <p class="text-sm text-slate-500">Syllabus Completed</p>
-        <p id="syllabusPercent" class="text-3xl font-bold mt-1">0%</p>
-      </div>
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
 
-      <div class="bg-white rounded-2xl shadow-sm p-5 border">
-        <p class="text-sm text-slate-500">K12 Test Average</p>
-        <p id="performanceAverage" class="text-3xl font-bold mt-1">--</p>
-      </div>
+  <div class="text-3xl mb-2">
+    📊
+  </div>
 
-      <div class="bg-white rounded-2xl shadow-sm p-5 border">
-        <p class="text-sm text-slate-500">Attendance</p>
-        <p id="attendancePercent" class="text-3xl font-bold mt-1">--</p>
-      </div>
-    </section>
+  <h3 class="text-xl font-bold">
+    K12 Test Performance
+  </h3>
 
-    <!-- Main Cards -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-5">
+  <p class="text-sm text-slate-500 mt-1">
+    Recent academy test results
+  </p>
 
-      <!-- Upcoming Tests -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-3xl mb-2">📝</div>
-            <h3 class="text-xl font-bold">K12 Test Details</h3>
-            <p class="text-sm text-slate-500 mt-1">Upcoming academy tests</p>
-          </div>
-          <span id="testBadge" class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">0 tests</span>
-        </div>
 
-        <div id="upcomingTestsList" class="mt-5 space-y-3"></div>
-      </div>
+  <div
+    id="performanceList"
+    class="mt-5 space-y-3"
+  >
 
-      <!-- Syllabus -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-3xl mb-2">📚</div>
-            <h3 class="text-xl font-bold">Syllabus Progress</h3>
-            <p class="text-sm text-slate-500 mt-1">Topics covered in class</p>
-          </div>
-          <span id="syllabusBadge" class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">0%</span>
-        </div>
+    <p class="text-sm text-slate-400">
+      Loading results...
+    </p>
 
-        <div id="syllabusList" class="mt-5 space-y-4"></div>
-      </div>
+  </div>
 
-      <!-- School Marks -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="text-3xl mb-2">🏫</div>
-        <h3 class="text-xl font-bold">School Test Marks</h3>
-        <p class="text-sm text-slate-500 mt-1">
-          Enter marks received in school tests and exams.
-        </p>
+</div>
 
-        <button
-          onclick="openSchoolMarksForm()"
-          class="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition">
-          ➕ Update School Test Marks
-        </button>
 
-        <div class="mt-4 p-3 bg-blue-50 rounded-xl text-sm text-blue-800">
-          Your entries will be recorded through the academy's Google Form.
-        </div>
-      </div>
 
-      <!-- Fees -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="text-3xl mb-2">💰</div>
-            <h3 class="text-xl font-bold">Fee Status</h3>
-            <p class="text-sm text-slate-500 mt-1">Your academy fee information</p>
-          </div>
-          <span id="feeStatus" class="px-3 py-1 rounded-full text-xs font-semibold">Loading</span>
-        </div>
+<!-- ATTENDANCE -->
 
-        <div class="grid grid-cols-2 gap-3 mt-5">
-          <div class="bg-slate-50 rounded-xl p-4">
-            <p class="text-xs text-slate-500">Total Fee</p>
-            <p id="totalFee" class="font-bold text-lg">₹--</p>
-          </div>
-          <div class="bg-slate-50 rounded-xl p-4">
-            <p class="text-xs text-slate-500">Paid</p>
-            <p id="paidFee" class="font-bold text-lg">₹--</p>
-          </div>
-          <div class="bg-slate-50 rounded-xl p-4">
-            <p class="text-xs text-slate-500">Pending</p>
-            <p id="pendingFee" class="font-bold text-lg">₹--</p>
-          </div>
-          <div class="bg-slate-50 rounded-xl p-4">
-            <p class="text-xs text-slate-500">Next Due Date</p>
-            <p id="feeDueDate" class="font-bold text-lg">--</p>
-          </div>
-        </div>
-      </div>
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
 
-      <!-- K12 Performance -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="text-3xl mb-2">📊</div>
-        <h3 class="text-xl font-bold">K12 Test Performance</h3>
-        <p class="text-sm text-slate-500 mt-1">Recent academy test results</p>
+  <div class="text-3xl mb-2">
+    📅
+  </div>
 
-        <div id="performanceList" class="mt-5 space-y-3"></div>
-      </div>
+  <h3 class="text-xl font-bold">
+    Attendance
+  </h3>
 
-      <!-- Attendance -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="text-3xl mb-2">📅</div>
-        <h3 class="text-xl font-bold">Attendance</h3>
-        <p class="text-sm text-slate-500 mt-1">Academy attendance record</p>
+  <p class="text-sm text-slate-500 mt-1">
+    Academy attendance record
+  </p>
 
-        <div class="mt-5">
-          <div class="flex justify-between text-sm mb-2">
-            <span>Attendance</span>
-            <span id="attendanceText" class="font-semibold">--</span>
-          </div>
-          <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
-            <div id="attendanceBar" class="progress-bar h-full bg-green-500 rounded-full" style="width:0%"></div>
-          </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-3 mt-5">
-          <div class="bg-slate-50 rounded-xl p-4">
-            <p class="text-xs text-slate-500">Present</p>
-            <p id="presentCount" class="font-bold text-lg">--</p>
-          </div>
-          <div class="bg-slate-50 rounded-xl p-4">
-            <p class="text-xs text-slate-500">Absent</p>
-            <p id="absentCount" class="font-bold text-lg">--</p>
-          </div>
-        </div>
-      </div>
+  <div class="mt-5">
 
-      <!-- Homework -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="text-3xl mb-2">📖</div>
-        <h3 class="text-xl font-bold">Homework</h3>
-        <p class="text-sm text-slate-500 mt-1">Latest homework assigned</p>
+    <div class="flex justify-between text-sm mb-2">
 
-        <div id="homeworkList" class="mt-5 space-y-3"></div>
-      </div>
+      <span>
+        Attendance
+      </span>
 
-      <!-- Rewards -->
-      <div class="card bg-white rounded-3xl shadow-sm border p-6">
-        <div class="text-3xl mb-2">🏆</div>
-        <h3 class="text-xl font-bold">Rewards & Achievements</h3>
-        <p class="text-sm text-slate-500 mt-1">Your recent achievements</p>
+      <span
+        id="attendanceText"
+        class="font-semibold"
+      >
+        --
+      </span>
 
-        <div id="rewardsList" class="mt-5 space-y-3"></div>
-      </div>
+    </div>
 
-    </section>
 
-    <!-- Announcements -->
-    <section class="mt-5 bg-white rounded-3xl shadow-sm border p-6">
-      <div class="flex items-center gap-3">
-        <div class="text-3xl">🔔</div>
-        <div>
-          <h3 class="text-xl font-bold">Important Announcements</h3>
-          <p class="text-sm text-slate-500">Updates from Jain Sir's K12 Academy</p>
-        </div>
-      </div>
+    <div
+      class="h-3 bg-slate-100 rounded-full overflow-hidden"
+    >
 
-      <div id="announcementsList" class="mt-5 space-y-3"></div>
-    </section>
+      <div
+        id="attendanceBar"
+        class="progress-bar h-full bg-green-500 rounded-full"
+        style="width:0%"
+      ></div>
 
-    <footer class="text-center text-sm text-slate-400 py-8">
-      Jain Sir's K12 Academy • Building future beyond marks
-    </footer>
+    </div>
 
-  </main>
+  </div>
+
+
+  <div class="grid grid-cols-2 gap-3 mt-5">
+
+
+    <div class="bg-slate-50 rounded-xl p-4">
+
+      <p class="text-xs text-slate-500">
+        Present
+      </p>
+
+      <p
+        id="presentCount"
+        class="font-bold text-lg"
+      >
+        --
+      </p>
+
+    </div>
+
+
+    <div class="bg-slate-50 rounded-xl p-4">
+
+      <p class="text-xs text-slate-500">
+        Absent
+      </p>
+
+      <p
+        id="absentCount"
+        class="font-bold text-lg"
+      >
+        --
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- HOMEWORK -->
+
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
+
+  <div class="text-3xl mb-2">
+    📖
+  </div>
+
+  <h3 class="text-xl font-bold">
+    Homework
+  </h3>
+
+  <p class="text-sm text-slate-500 mt-1">
+    Latest homework assigned
+  </p>
+
+
+  <div
+    id="homeworkList"
+    class="mt-5 space-y-3"
+  >
+
+    <p class="text-sm text-slate-500">
+      Homework information will appear here.
+    </p>
+
+  </div>
+
+</div>
+
+
+
+<!-- REWARDS -->
+
+<div class="card bg-white rounded-3xl shadow-sm border p-6">
+
+  <div class="text-3xl mb-2">
+    🏆
+  </div>
+
+  <h3 class="text-xl font-bold">
+    Rewards & Achievements
+  </h3>
+
+  <p class="text-sm text-slate-500 mt-1">
+    Your recent achievements
+  </p>
+
+
+  <div
+    id="rewardsList"
+    class="mt-5 space-y-3"
+  >
+
+    <p class="text-sm text-slate-500">
+      No achievements available yet.
+    </p>
+
+  </div>
+
+</div>
+
+
+</section>
+
+
+
+<!-- =====================================================
+ANNOUNCEMENTS
+===================================================== -->
+
+<section
+  class="mt-5 bg-white rounded-3xl shadow-sm border p-6"
+>
+
+  <div class="flex items-center gap-3">
+
+    <div class="text-3xl">
+      🔔
+    </div>
+
+    <div>
+
+      <h3 class="text-xl font-bold">
+        Important Announcements
+      </h3>
+
+      <p class="text-sm text-slate-500">
+        Updates from Jain Sir's K12 Academy
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="announcementsList"
+    class="mt-5 space-y-3"
+  >
+
+    <p class="text-sm text-slate-500">
+      No announcements available.
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<footer class="text-center text-sm text-slate-400 py-8">
+
+  Jain Sir's K12 Academy • Building future beyond marks
+
+</footer>
+
+
+</main>
+
+
 
 <script>
 
-/*
-===========================================================
-JAIN SIR'S K12 ACADEMY
-STUDENT DASHBOARD - LIVE VERSION
-===========================================================
-
-Existing Apps Script endpoints used:
-
-?action=login&rollNo=...&password=...
-?action=syllabus&rollNo=...
-?action=tests&rollNo=...
-?action=testResults&rollNo=...
-
-===========================================================
-*/
-
-
 // =========================================================
-// GOOGLE APPS SCRIPT WEB APP URL
+// API URL
 // =========================================================
 
 const API_URL =
@@ -295,7 +725,7 @@ const API_URL =
 
 
 // =========================================================
-// SCHOOL MARKS GOOGLE FORM
+// SCHOOL MARKS FORM
 // =========================================================
 
 const SCHOOL_MARKS_FORM_URL =
@@ -303,7 +733,7 @@ const SCHOOL_MARKS_FORM_URL =
 
 
 // =========================================================
-// STUDENT SESSION
+// SESSION
 // =========================================================
 
 let studentRollNo = "";
@@ -312,252 +742,341 @@ let studentData = {};
 
 
 // =========================================================
-// INITIALIZE
+// PAGE LOAD
 // =========================================================
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
 
-  /*
-   * We expect the student's login information to already
-   * be stored by your existing login page.
-   *
-   * We first try localStorage.
-   */
+    studentRollNo =
+      localStorage.getItem(
+        "studentRollNo"
+      ) || "";
 
-  studentRollNo =
-    localStorage.getItem("studentRollNo") || "";
 
-  const storedStudent =
-    localStorage.getItem("studentData");
+    const storedStudent =
+      localStorage.getItem(
+        "studentData"
+      );
 
-  if (storedStudent) {
 
-    try {
+    if (storedStudent) {
 
-      studentData =
-        JSON.parse(storedStudent);
+      try {
 
-    } catch (err) {
+        studentData =
+          JSON.parse(storedStudent);
 
-      studentData = {};
+      }
+      catch (error) {
+
+        studentData = {};
+
+      }
 
     }
 
-  }
 
+    if (!studentRollNo) {
 
-  /*
-   * If no Roll No is available, show a clear message.
-   */
+      window.location.href =
+        "student-login.html";
 
-  if (!studentRollNo) {
+      return;
 
-    showDashboardMessage(
-      "Student login information not found. Please login again."
-    );
+    }
 
-    return;
-
-  }
-
-
-  /*
-   * Display whatever student information is already
-   * available while live data loads.
-   */
-
-  if (studentData.name) {
 
     setStudentName(
-      studentData.name
+      studentData.name || "Student"
     );
 
-  }
-
-  if (studentData.className) {
 
     setStudentClass(
-      studentData.className
+      studentData.className || ""
     );
 
-  }
 
+    loadDashboard();
+
+  }
+);
+
+
+// =========================================================
+// LOAD DASHBOARD
+// =========================================================
+
+function loadDashboard() {
 
   /*
-   * Load live dashboard data.
+   * IMPORTANT:
+   * Each request is independent.
+   *
+   * If Tests is slow/fails, Syllabus, Attendance and
+   * Results can still load.
    */
 
-  loadStudentInformation();
+  loadUpcomingTests();
 
-});
+  loadSyllabus();
 
+  loadTestResults();
 
-// =========================================================
-// LOAD ALL STUDENT INFORMATION
-// =========================================================
-
-async function loadStudentInformation() {
-
-  try {
-
-    await loadStudentLogin();
-
-    await loadUpcomingTests();
-    await loadSyllabus();
-    await loadTestResults();
-    await loadAttendance();
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "Dashboard loading error:",
-      error
-    );
-
-  }
+  loadAttendance();
 
 }
 
 
 // =========================================================
-// GENERIC API FUNCTION
+// JSONP API REQUEST
 // =========================================================
 
 function apiRequest(action) {
 
-  return new Promise(function(resolve, reject) {
+  return new Promise(
+    function(resolve, reject) {
 
-    const callbackName =
-      "k12_" +
-      Date.now() +
-      "_" +
-      Math.floor(Math.random() * 100000);
-
-
-    const script =
-      document.createElement("script");
-
-
-    const timer =
-      setTimeout(function() {
-
-        cleanup();
-
-        reject(
-          new Error("API request timed out")
+      const callbackName =
+        "k12Callback" +
+        Date.now() +
+        Math.floor(
+          Math.random() * 1000000
         );
 
-      }, 60000);
+
+      const script =
+        document.createElement(
+          "script"
+        );
 
 
-    function cleanup() {
-
-      clearTimeout(timer);
-
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-
-      delete window[callbackName];
-    }
+      let completed = false;
 
 
-    window[callbackName] =
-      function(data) {
+      /*
+       * Apps Script can sometimes take time when opening
+       * several spreadsheets.
+       *
+       * Give it 90 seconds.
+       */
 
-        cleanup();
+      const timer =
+        setTimeout(
+          function() {
 
-        if (!data.success) {
+            if (completed) {
+              return;
+            }
+
+
+            completed = true;
+
+
+            /*
+             * Do NOT delete the callback immediately.
+             *
+             * If Apps Script responds slightly late,
+             * calling a deleted callback causes:
+             *
+             * ReferenceError: callback is not defined
+             *
+             * Keep a harmless callback temporarily.
+             */
+
+            window[callbackName] =
+              function() {};
+
+
+            if (script.parentNode) {
+
+              script.parentNode
+                .removeChild(script);
+
+            }
+
+
+            reject(
+              new Error(
+                action +
+                " request timed out"
+              )
+            );
+
+
+            setTimeout(
+              function() {
+
+                try {
+
+                  delete window[
+                    callbackName
+                  ];
+
+                }
+                catch (error) {}
+
+              },
+              120000
+            );
+
+          },
+          90000
+        );
+
+
+      // ---------------------------------------------------
+      // SUCCESS CALLBACK
+      // ---------------------------------------------------
+
+      window[callbackName] =
+        function(data) {
+
+          if (completed) {
+            return;
+          }
+
+
+          completed = true;
+
+
+          clearTimeout(timer);
+
+
+          if (script.parentNode) {
+
+            script.parentNode
+              .removeChild(script);
+
+          }
+
+
+          /*
+           * Delay deletion slightly to protect against
+           * duplicate/late script execution.
+           */
+
+          setTimeout(
+            function() {
+
+              try {
+
+                delete window[
+                  callbackName
+                ];
+
+              }
+              catch (error) {}
+
+            },
+            5000
+          );
+
+
+          if (!data) {
+
+            reject(
+              new Error(
+                "No data received for " +
+                action
+              )
+            );
+
+            return;
+
+          }
+
+
+          if (!data.success) {
+
+            reject(
+              new Error(
+                data.message ||
+                "Unable to load " +
+                action
+              )
+            );
+
+            return;
+
+          }
+
+
+          resolve(data);
+
+        };
+
+
+      // ---------------------------------------------------
+      // NETWORK ERROR
+      // ---------------------------------------------------
+
+      script.onerror =
+        function() {
+
+          if (completed) {
+            return;
+          }
+
+
+          completed = true;
+
+          clearTimeout(timer);
+
+
+          window[callbackName] =
+            function() {};
+
 
           reject(
             new Error(
-              data.message ||
-              "Unable to load data."
+              "Unable to contact server for " +
+              action
             )
           );
 
-          return;
-        }
-
-        resolve(data);
-      };
+        };
 
 
-    script.onerror =
-      function() {
+      // ---------------------------------------------------
+      // BUILD URL
+      // ---------------------------------------------------
 
-        cleanup();
-
-        reject(
-          new Error(
-            "Unable to load dashboard data."
-          )
-        );
-
-      };
-
-
-    script.src =
-      API_URL +
-      "?action=" +
-      encodeURIComponent(action) +
-      "&rollNo=" +
-      encodeURIComponent(studentRollNo) +
-      "&callback=" +
-      encodeURIComponent(callbackName);
+      script.src =
+        API_URL +
+        "?action=" +
+        encodeURIComponent(action) +
+        "&rollNo=" +
+        encodeURIComponent(
+          studentRollNo
+        ) +
+        "&callback=" +
+        encodeURIComponent(
+          callbackName
+        ) +
+        "&t=" +
+        Date.now();
 
 
-    document.body.appendChild(script);
+      console.log(
+        "Loading:",
+        action
+      );
 
-  });
 
-}
+      document.body.appendChild(
+        script
+      );
 
-
-// =========================================================
-// LOAD STUDENT LOGIN / BASIC INFORMATION
-// =========================================================
-
-async function loadStudentLogin() {
-
-  /*
-   * Login endpoint requires password.
-   *
-   * The dashboard normally does not need to call login
-   * again if the login page has already stored studentData.
-   *
-   * Therefore, if studentData already exists, use it.
-   */
-
-  if (
-    studentData &&
-    studentData.name
-  ) {
-
-    setStudentName(
-      studentData.name
-    );
-
-  }
-
-  if (
-    studentData &&
-    studentData.className
-  ) {
-
-    setStudentClass(
-      studentData.className
-    );
-
-  }
+    }
+  );
 
 }
 
 
 // =========================================================
-// SET STUDENT NAME
+// STUDENT NAME
 // =========================================================
 
 function setStudentName(name) {
@@ -566,6 +1085,7 @@ function setStudentName(name) {
     document.getElementById(
       "studentNameHeader"
     );
+
 
   const welcome =
     document.getElementById(
@@ -576,7 +1096,7 @@ function setStudentName(name) {
   if (header) {
 
     header.textContent =
-      name || "Student";
+      name;
 
   }
 
@@ -584,7 +1104,7 @@ function setStudentName(name) {
   if (welcome) {
 
     welcome.textContent =
-      name || "Student";
+      name;
 
   }
 
@@ -592,7 +1112,7 @@ function setStudentName(name) {
 
 
 // =========================================================
-// SET STUDENT CLASS
+// STUDENT CLASS
 // =========================================================
 
 function setStudentClass(className) {
@@ -606,7 +1126,7 @@ function setStudentClass(className) {
   if (element) {
 
     element.textContent =
-      className || "";
+      className;
 
   }
 
@@ -631,6 +1151,12 @@ async function loadUpcomingTests() {
       await apiRequest("tests");
 
 
+    console.log(
+      "Tests:",
+      data
+    );
+
+
     const tests =
       data.tests || [];
 
@@ -645,11 +1171,7 @@ async function loadUpcomingTests() {
       "testBadge"
     ).textContent =
       tests.length +
-      (
-        tests.length === 1
-          ? " upcoming"
-          : " upcoming"
-      );
+      " upcoming";
 
 
     if (!tests.length) {
@@ -665,56 +1187,84 @@ async function loadUpcomingTests() {
 
 
     list.innerHTML =
-      tests.map(function (test) {
+      tests.map(
+        function(test) {
 
-        return `
+          return `
 
-          <div class="border rounded-2xl p-4">
+            <div class="border rounded-2xl p-4">
 
-            <div class="flex justify-between gap-3">
+              <div class="flex justify-between gap-3">
 
-              <div>
+                <div>
 
-                <p class="font-semibold">
-                  ${escapeHtml(test.subject || "")}
-                </p>
+                  <p class="font-semibold">
 
-                <p class="text-sm text-slate-500">
-                  ${escapeHtml(test.chapter || "")}
-                </p>
+                    ${escapeHtml(
+                      test.subject || ""
+                    )}
+
+                  </p>
+
+
+                  <p class="text-sm text-slate-500">
+
+                    ${escapeHtml(
+                      test.chapter || ""
+                    )}
+
+                  </p>
+
+                </div>
+
+
+                <span
+                  class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg h-fit"
+                >
+
+                  ${escapeHtml(
+                    test.testName || ""
+                  )}
+
+                </span>
 
               </div>
 
-              <span
-                class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg h-fit">
 
-                ${escapeHtml(test.testName || "")}
+              <p class="text-sm font-medium mt-3">
 
-              </span>
+                📅 ${escapeHtml(
+                  test.date || ""
+                )}
+
+              </p>
 
             </div>
 
-            <p class="text-sm font-medium mt-3">
+          `;
 
-              📅 ${escapeHtml(test.date || "")}
-
-            </p>
-
-          </div>
-
-        `;
-
-      }).join("");
-
+        }
+      ).join("");
 
   }
-
   catch (error) {
 
     console.error(
       "Upcoming tests error:",
       error
     );
+
+
+    document.getElementById(
+      "upcomingTestCount"
+    ).textContent =
+      "--";
+
+
+    document.getElementById(
+      "testBadge"
+    ).textContent =
+      "Unavailable";
 
 
     list.innerHTML =
@@ -742,22 +1292,26 @@ async function loadSyllabus() {
   try {
 
     const data =
-      await apiRequest("syllabus");
+      await apiRequest(
+        "syllabus"
+      );
 
 
-    /*
-     * Your Apps Script returns:
-     *
-     * data.overall
-     * data.subjects
-     * data.chapters
-     */
+    console.log(
+      "Syllabus:",
+      data
+    );
 
 
     const overall =
       data.overall &&
-      typeof data.overall.percentage !== "undefined"
-        ? Number(data.overall.percentage)
+      data.overall.percentage !==
+      undefined
+
+        ? Number(
+            data.overall.percentage
+          )
+
         : 0;
 
 
@@ -777,11 +1331,13 @@ async function loadSyllabus() {
       data.subjects || {};
 
 
-    const subjectNames =
-      Object.keys(subjects);
+    const names =
+      Object.keys(
+        subjects
+      );
 
 
-    if (!subjectNames.length) {
+    if (!names.length) {
 
       list.innerHTML =
         '<p class="text-sm text-slate-500">' +
@@ -794,52 +1350,59 @@ async function loadSyllabus() {
 
 
     list.innerHTML =
-      subjectNames.map(function (subject) {
+      names.map(
+        function(subject) {
 
-        const item =
-          subjects[subject];
-
-
-        const percentage =
-          Number(item.percentage || 0);
+          const item =
+            subjects[subject];
 
 
-        return `
-
-          <div>
-
-            <div class="flex justify-between text-sm mb-1">
-
-              <span class="font-medium">
-                ${escapeHtml(subject)}
-              </span>
-
-              <span>
-                ${percentage}%
-              </span>
-
-            </div>
+          const percentage =
+            Number(
+              item.percentage || 0
+            );
 
 
-            <div
-              class="h-2 bg-slate-100 rounded-full overflow-hidden">
+          return `
+
+            <div>
+
+              <div class="flex justify-between text-sm mb-1">
+
+                <span class="font-medium">
+
+                  ${escapeHtml(
+                    subject
+                  )}
+
+                </span>
+
+                <span>
+                  ${percentage}%
+                </span>
+
+              </div>
+
 
               <div
-                class="progress-bar h-full bg-blue-600 rounded-full"
-                style="width:${percentage}%">
+                class="h-2 bg-slate-100 rounded-full overflow-hidden"
+              >
+
+                <div
+                  class="progress-bar h-full bg-blue-600 rounded-full"
+                  style="width:${percentage}%"
+                ></div>
+
               </div>
 
             </div>
 
-          </div>
+          `;
 
-        `;
-
-      }).join("");
-
+        }
+      ).join("");
 
   }
-
   catch (error) {
 
     console.error(
@@ -859,7 +1422,7 @@ async function loadSyllabus() {
 
 
 // =========================================================
-// K12 TEST RESULTS
+// TEST RESULTS
 // =========================================================
 
 async function loadTestResults() {
@@ -873,16 +1436,20 @@ async function loadTestResults() {
   try {
 
     const data =
-      await apiRequest("testResults");
+      await apiRequest(
+        "testResults"
+      );
+
+
+    console.log(
+      "Test Results:",
+      data
+    );
 
 
     const results =
       data.results || [];
 
-
-    /*
-     * No results yet
-     */
 
     if (!results.length) {
 
@@ -902,46 +1469,53 @@ async function loadTestResults() {
     }
 
 
-    /*
-     * Calculate average percentage
-     */
-
     let totalPercentage = 0;
 
     let validResults = 0;
 
 
-    results.forEach(function (result) {
+    results.forEach(
+      function(result) {
 
-      const marks =
-        Number(result.marks);
+        const marks =
+          Number(
+            result.marks
+          );
 
-      const total =
-        Number(result.totalMarks);
+
+        const total =
+          Number(
+            result.totalMarks
+          );
 
 
-      if (
-        !isNaN(marks) &&
-        !isNaN(total) &&
-        total > 0
-      ) {
+        if (
+          !isNaN(marks) &&
+          !isNaN(total) &&
+          total > 0
+        ) {
 
-        totalPercentage +=
-          (marks / total) * 100;
+          totalPercentage +=
+            (marks / total) *
+            100;
 
-        validResults++;
+
+          validResults++;
+
+        }
 
       }
-
-    });
+    );
 
 
     const average =
       validResults > 0
+
         ? Math.round(
             totalPercentage /
             validResults
           )
+
         : 0;
 
 
@@ -951,109 +1525,121 @@ async function loadTestResults() {
       average + "%";
 
 
-    /*
-     * Display most recent results first.
-     */
-
     const recentResults =
-      results.slice(-5).reverse();
+      results
+        .slice(-5)
+        .reverse();
 
 
     list.innerHTML =
-      recentResults.map(function (result) {
+      recentResults.map(
+        function(result) {
 
-        const marks =
-          Number(result.marks);
-
-        const total =
-          Number(result.totalMarks);
-
-
-        let percentage = 0;
-
-
-        if (
-          !isNaN(marks) &&
-          !isNaN(total) &&
-          total > 0
-        ) {
-
-          percentage =
-            Math.round(
-              (marks / total) * 100
+          const marks =
+            Number(
+              result.marks
             );
 
-        }
+
+          const total =
+            Number(
+              result.totalMarks
+            );
 
 
-        return `
-
-          <div
-            class="flex items-center justify-between border rounded-xl p-3">
-
-            <div>
-
-              <p class="font-medium text-sm">
-
-                ${escapeHtml(
-                  result.subject || ""
-                )}
-
-                ${result.testName
-                  ? " - " +
-                    escapeHtml(result.testName)
-                  : ""
-                }
-
-              </p>
+          let percentage = 0;
 
 
-              <p class="text-xs text-slate-500">
+          if (
+            !isNaN(marks) &&
+            !isNaN(total) &&
+            total > 0
+          ) {
 
-                ${escapeHtml(
-                  result.chapter || ""
-                )}
+            percentage =
+              Math.round(
+                (marks / total) *
+                100
+              );
 
-                ${
-                  result.date
-                    ? " • " +
-                      escapeHtml(result.date)
-                    : ""
-                }
-
-              </p>
+          }
 
 
-              <p class="text-xs text-slate-500 mt-1">
+          return `
 
-                ${escapeHtml(
-                  result.marks || ""
-                )}
-                /
-                ${escapeHtml(
-                  result.totalMarks || ""
-                )}
+            <div
+              class="flex items-center justify-between border rounded-xl p-3"
+            >
 
-              </p>
+              <div>
+
+                <p class="font-medium text-sm">
+
+                  ${escapeHtml(
+                    result.subject || ""
+                  )}
+
+                  ${
+                    result.testName
+                      ? " - " +
+                        escapeHtml(
+                          result.testName
+                        )
+                      : ""
+                  }
+
+                </p>
+
+
+                <p class="text-xs text-slate-500">
+
+                  ${escapeHtml(
+                    result.chapter || ""
+                  )}
+
+                  ${
+                    result.date
+                      ? " • " +
+                        escapeHtml(
+                          result.date
+                        )
+                      : ""
+                  }
+
+                </p>
+
+
+                <p class="text-xs text-slate-500 mt-1">
+
+                  ${escapeHtml(
+                    result.marks || ""
+                  )}
+
+                  /
+
+                  ${escapeHtml(
+                    result.totalMarks || ""
+                  )}
+
+                </p>
+
+              </div>
+
+
+              <span class="font-bold">
+
+                ${percentage}%
+
+              </span>
 
             </div>
 
+          `;
 
-            <span class="font-bold">
-
-              ${percentage}%
-
-            </span>
-
-          </div>
-
-        `;
-
-      }).join("");
-
+        }
+      ).join("");
 
   }
-
   catch (error) {
 
     console.error(
@@ -1087,20 +1673,33 @@ async function loadAttendance() {
   try {
 
     const data =
-      await apiRequest("attendance");
+      await apiRequest(
+        "attendance"
+      );
+
+
+    console.log(
+      "Attendance:",
+      data
+    );
 
 
     const present =
-      Number(data.present || 0);
+      Number(
+        data.present || 0
+      );
+
 
     const absent =
-      Number(data.absent || 0);
+      Number(
+        data.absent || 0
+      );
 
-    const total =
-      Number(data.total || 0);
 
     const percentage =
-      Number(data.percentage || 0);
+      Number(
+        data.percentage || 0
+      );
 
 
     document.getElementById(
@@ -1132,8 +1731,8 @@ async function loadAttendance() {
     ).style.width =
       percentage + "%";
 
-
-  } catch (error) {
+  }
+  catch (error) {
 
     console.error(
       "Attendance error:",
@@ -1150,7 +1749,7 @@ async function loadAttendance() {
     document.getElementById(
       "attendanceText"
     ).textContent =
-      "--";
+      "Unavailable";
 
 
     document.getElementById(
@@ -1168,8 +1767,9 @@ async function loadAttendance() {
 
 }
 
+
 // =========================================================
-// SCHOOL MARKS FORM
+// SCHOOL MARKS
 // =========================================================
 
 function openSchoolMarksForm() {
@@ -1199,159 +1799,29 @@ function openSchoolMarksForm() {
 
 
 // =========================================================
-// HOMEWORK
+// LOGOUT
 // =========================================================
 
-/*
- * Homework currently comes from the Teaching Log.
- *
- * Your current Apps Script does not yet expose a
- * homework endpoint.
- *
- * Therefore we do not use placeholder homework.
- */
+function logoutStudent() {
 
-function loadHomework() {
-
-  const list =
-    document.getElementById(
-      "homeworkList"
-    );
+  localStorage.removeItem(
+    "studentRollNo"
+  );
 
 
-  list.innerHTML =
-    '<p class="text-sm text-slate-500">' +
-    'Homework information will appear here.' +
-    '</p>';
+  localStorage.removeItem(
+    "studentData"
+  );
+
+
+  window.location.href =
+    "student-login.html";
 
 }
 
 
 // =========================================================
-// FEES
-// =========================================================
-
-/*
- * Fee API is not yet part of the Apps Script endpoints
- * shown in this project.
- *
- * Do not display fake fee information.
- */
-
-function loadFees() {
-
-  document.getElementById(
-    "totalFee"
-  ).textContent =
-    "₹--";
-
-
-  document.getElementById(
-    "paidFee"
-  ).textContent =
-    "₹--";
-
-
-  document.getElementById(
-    "pendingFee"
-  ).textContent =
-    "₹--";
-
-
-  document.getElementById(
-    "feeDueDate"
-  ).textContent =
-    "--";
-
-
-  document.getElementById(
-    "feeStatus"
-  ).textContent =
-    "Not available";
-
-}
-
-
-// =========================================================
-// REWARDS
-// =========================================================
-
-function loadRewards() {
-
-  const list =
-    document.getElementById(
-      "rewardsList"
-    );
-
-
-  list.innerHTML =
-    '<p class="text-sm text-slate-500">' +
-    'No achievements available yet.' +
-    '</p>';
-
-}
-
-
-// =========================================================
-// ANNOUNCEMENTS
-// =========================================================
-
-function loadAnnouncements() {
-
-  const list =
-    document.getElementById(
-      "announcementsList"
-    );
-
-
-  list.innerHTML =
-    '<p class="text-sm text-slate-500">' +
-    'No announcements available.' +
-    '</p>';
-
-}
-
-
-// =========================================================
-// DASHBOARD MESSAGE
-// =========================================================
-
-function showDashboardMessage(message) {
-
-  console.warn(message);
-
-
-  const lists = [
-
-    "upcomingTestsList",
-    "syllabusList",
-    "performanceList"
-
-  ];
-
-
-  lists.forEach(function (id) {
-
-    const element =
-      document.getElementById(id);
-
-
-    if (element) {
-
-      element.innerHTML =
-        '<p class="text-sm text-slate-500">' +
-        escapeHtml(message) +
-        '</p>';
-
-    }
-
-  });
-
-}
-
-
-// =========================================================
-// HTML ESCAPE
+// ESCAPE HTML
 // =========================================================
 
 function escapeHtml(value) {
@@ -1367,30 +1837,37 @@ function escapeHtml(value) {
 
 
   return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 
-}
+    .replace(
+      /&/g,
+      "&amp;"
+    )
 
+    .replace(
+      /</g,
+      "&lt;"
+    )
 
-// =========================================================
-// OPTIONAL LOGOUT
-// =========================================================
+    .replace(
+      />/g,
+      "&gt;"
+    )
 
-function logoutStudent() {
+    .replace(
+      /"/g,
+      "&quot;"
+    )
 
-  // Remove logged-in student information
-  localStorage.removeItem("studentRollNo");
-  localStorage.removeItem("studentData");
-
-  // Return to student login
-  window.location.href = "student-login.html";
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 </script>
+
+
 </body>
+
 </html>
