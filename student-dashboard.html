@@ -402,17 +402,10 @@ async function loadStudentInformation() {
 
     await loadStudentLogin();
 
-    await Promise.all([
-
-      loadUpcomingTests(),
-
-      loadSyllabus(),
-
-      loadTestResults(),
-
-      loadAttendance()
-
-    ]);
+    await loadUpcomingTests();
+    await loadSyllabus();
+    await loadTestResults();
+    await loadAttendance();
 
   }
 
