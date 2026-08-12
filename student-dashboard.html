@@ -1355,40 +1355,6 @@ function logoutStudent() {
 
 }
 
-function setStudentPhoto(photoId) {
-
-  if (!photoId) {
-    return;
-  }
-
-  const photo =
-    document.getElementById("studentPhoto");
-
-  const fallback =
-    document.getElementById("studentPhotoFallback");
-
-  photo.onload = function() {
-
-    photo.classList.remove("hidden");
-
-    fallback.classList.add("hidden");
-
-  };
-
-  photo.onerror = function() {
-
-    photo.classList.add("hidden");
-
-    fallback.classList.remove("hidden");
-
-  };
-
-  photo.src =
-    "https://drive.google.com/thumbnail?id=" +
-    encodeURIComponent(photoId) +
-    "&sz=w300";
-}
-
 </script>
 </body>
 </html>
