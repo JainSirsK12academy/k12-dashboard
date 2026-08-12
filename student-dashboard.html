@@ -432,52 +432,94 @@ async function loadStudentInformation() {
 // GENERIC API FUNCTION
 // =========================================================
 
-async function apiRequest(action) {
+function apiRequest(action) {
 
-  const url =
-    API_URL +
-    "?action=" +
-    encodeURIComponent(action) +
-    "&rollNo=" +
-    encodeURIComponent(studentRollNo);
+  return new Promise(function(resolve, reject) {
 
-  console.log(
-    "API Request:",
-    action,
-    url
-  );
+    const callbackName =
+      "k12_" +
+      Date.now() +
+      "_" +
+      Math.floor(Math.random() * 100000);
 
-  const response =
-    await fetch(url);
 
-  if (!response.ok) {
+    const script =
+      document.createElement("script");
 
-    throw new Error(
-      "API request failed: " +
-      response.status
-    );
 
-  }
+    const timer =
+      setTimeout(function() {
 
-  const data =
-    await response.json();
+        cleanup();
 
-  console.log(
-    "API Response:",
-    action,
-    data
-  );
+        reject(
+          new Error("API request timed out")
+        );
 
-  if (!data.success) {
+      }, 15000);
 
-    throw new Error(
-      data.message ||
-      "Unable to load data."
-    );
 
-  }
+    function cleanup() {
 
-  return data;
+      clearTimeout(timer);
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+      delete window[callbackName];
+    }
+
+
+    window[callbackName] =
+      function(data) {
+
+        cleanup();
+
+        if (!data.success) {
+
+          reject(
+            new Error(
+              data.message ||
+              "Unable to load data."
+            )
+          );
+
+          return;
+        }
+
+        resolve(data);
+      };
+
+
+    script.onerror =
+      function() {
+
+        cleanup();
+
+        reject(
+          new Error(
+            "Unable to load dashboard data."
+          )
+        );
+
+      };
+
+
+    script.src =
+      API_URL +
+      "?action=" +
+      encodeURIComponent(action) +
+      "&rollNo=" +
+      encodeURIComponent(studentRollNo) +
+      "&callback=" +
+      encodeURIComponent(callbackName);
+
+
+    document.body.appendChild(script);
+
+  });
+
 }
 
 
