@@ -179,198 +179,237 @@ const togglePassword =
 // SHOW / HIDE PASSWORD
 // ========================================================
 
-togglePassword.addEventListener("click", function () {
+togglePassword.addEventListener(
+  "click",
+  function () {
 
-  if (passwordInput.type === "password") {
+    if (passwordInput.type === "password") {
 
-    passwordInput.type = "text";
+      passwordInput.type = "text";
+      togglePassword.textContent = "Hide";
 
-    togglePassword.textContent = "Hide";
+    } else {
 
-  } else {
+      passwordInput.type = "password";
+      togglePassword.textContent = "Show";
 
-    passwordInput.type = "password";
-
-    togglePassword.textContent = "Show";
+    }
 
   }
-
-});
+);
 
 
 // ========================================================
 // LOGIN
 // ========================================================
 
-loginForm.addEventListener("submit", async function (event) {
+loginForm.addEventListener(
+  "submit",
+  async function (event) {
 
-  event.preventDefault();
-
-
-  const rollNo =
-    document
-      .getElementById("rollNo")
-      .value
-      .trim();
+    event.preventDefault();
 
 
-  const password =
-    document
-      .getElementById("password")
-      .value
-      .trim();
+    const rollNo =
+      document
+        .getElementById("rollNo")
+        .value
+        .trim();
 
 
-  if (!rollNo || !password) {
-
-    showMessage(
-      "Please enter your Roll Number and password.",
-      "error"
-    );
-
-    return;
-
-  }
+    const password =
+      document
+        .getElementById("password")
+        .value
+        .trim();
 
 
-  setLoading(true);
+    // ----------------------------------------------------
+    // VALIDATION
+    // ----------------------------------------------------
 
-  hideMessage();
-
-
-  try {
-
-    const url =
-      API_URL +
-      "?action=login" +
-      "&rollNo=" +
-      encodeURIComponent(rollNo) +
-      "&password=" +
-      encodeURIComponent(password);
-
-
-   const response =
-  await fetch(url);
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        "Server returned error " + response.status
-      );
-
-    }
-
-
-    const data =
-      await response.json();
-
-
-    console.log(
-      "Login response:",
-      data
-    );
-
-
-    if (!data.success) {
+    if (!rollNo || !password) {
 
       showMessage(
-        data.message ||
-        "Incorrect Roll Number or password.",
+        "Please enter your Roll Number and password.",
         "error"
       );
 
-      setLoading(false);
-
       return;
-
     }
 
 
-    // ====================================================
-    // NORMALISE STUDENT DATA
-    // ====================================================
-
-    const source =
-      data.student ||
-      data.studentData ||
-      data;
+    setLoading(true);
+    hideMessage();
 
 
-    const studentData = {
+    try {
 
-      name:
-        source.name ||
-        source.studentName ||
-        "",
+      // --------------------------------------------------
+      // BUILD LOGIN URL
+      // --------------------------------------------------
 
-      className:
-        source.className ||
-        source.class ||
-        "",
-
-      rollNo:
-        source.rollNo ||
-        rollNo
-
-    };
+      const url =
+        API_URL +
+        "?action=login" +
+        "&rollNo=" +
+        encodeURIComponent(rollNo) +
+        "&password=" +
+        encodeURIComponent(password);
 
 
-    // ====================================================
-    // SAVE LOGIN SESSION
-    // ====================================================
-
-    localStorage.setItem(
-      "studentRollNo",
-      rollNo
-    );
+      console.log(
+        "Login request started..."
+      );
 
 
-    localStorage.setItem(
-      "studentData",
-      JSON.stringify(studentData)
-    );
+      // --------------------------------------------------
+      // CALL APPS SCRIPT
+      // --------------------------------------------------
+
+      const response =
+        await fetch(url);
 
 
-    showMessage(
-      "Login successful. Opening your dashboard...",
-      "success"
-    );
+      console.log(
+        "Login HTTP status:",
+        response.status
+      );
 
 
-    // ====================================================
-    // OPEN DASHBOARD
-    // ====================================================
+      if (!response.ok) {
 
-    setTimeout(function () {
+        throw new Error(
+          "Server returned error " +
+          response.status
+        );
+
+      }
+
+
+      // --------------------------------------------------
+      // READ RESPONSE
+      // --------------------------------------------------
+
+      const data =
+        await response.json();
+
+
+      console.log(
+        "Login response:",
+        data
+      );
+
+
+      // --------------------------------------------------
+      // INVALID LOGIN
+      // --------------------------------------------------
+
+      if (!data.success) {
+
+        showMessage(
+          data.message ||
+          "Incorrect Roll Number or password.",
+          "error"
+        );
+
+        setLoading(false);
+
+        return;
+      }
+
+
+      // --------------------------------------------------
+      // GET STUDENT
+      // --------------------------------------------------
+
+      const source =
+        data.student ||
+        data.studentData ||
+        data;
+
+
+      const studentData = {
+
+        rollNo:
+          source.rollNo ||
+          rollNo,
+
+        name:
+          source.name ||
+          source.studentName ||
+          "",
+
+        className:
+          source.className ||
+          source.class ||
+          ""
+
+      };
+
+
+      // --------------------------------------------------
+      // SAVE SESSION
+      // --------------------------------------------------
+
+      localStorage.setItem(
+        "studentRollNo",
+        studentData.rollNo
+      );
+
+
+      localStorage.setItem(
+        "studentData",
+        JSON.stringify(studentData)
+      );
+
+
+      console.log(
+        "Student session saved:",
+        studentData
+      );
+
+
+      // --------------------------------------------------
+      // SUCCESS
+      // --------------------------------------------------
+
+      showMessage(
+        "Login successful. Opening dashboard...",
+        "success"
+      );
+
+
+      // --------------------------------------------------
+      // OPEN DASHBOARD
+      // --------------------------------------------------
 
       window.location.href =
         "student-dashboard.html";
 
-    }, 500);
 
+    }
+
+    catch (error) {
+
+      console.error(
+        "Login error:",
+        error
+      );
+
+
+      showMessage(
+        "Unable to login right now. Please try again.",
+        "error"
+      );
+
+
+      setLoading(false);
+
+    }
 
   }
-
-  catch (error) {
-
-    console.error(
-      "Login error:",
-      error
-    );
-
-
-    showMessage(
-      "Unable to login right now. Please try again.",
-      "error"
-    );
-
-
-    setLoading(false);
-
-  }
-
-});
+);
 
 
 // ========================================================
@@ -379,8 +418,7 @@ loginForm.addEventListener("submit", async function (event) {
 
 function showMessage(text, type) {
 
-  message.textContent =
-    text;
+  message.textContent = text;
 
 
   message.classList.remove(
@@ -418,11 +456,13 @@ function showMessage(text, type) {
 }
 
 
+// ========================================================
+// HIDE MESSAGE
+// ========================================================
+
 function hideMessage() {
 
-  message.classList.add(
-    "hidden"
-  );
+  message.classList.add("hidden");
 
 }
 
@@ -433,29 +473,20 @@ function hideMessage() {
 
 function setLoading(isLoading) {
 
-  if (isLoading) {
+  loginButton.disabled =
+    isLoading;
 
-    loginButton.disabled =
-      true;
 
-    loginButton.textContent =
-      "Logging in...";
-
-  } else {
-
-    loginButton.disabled =
-      false;
-
-    loginButton.textContent =
-      "Login to Dashboard";
-
-  }
+  loginButton.textContent =
+    isLoading
+      ? "Logging in..."
+      : "Login to Dashboard";
 
 }
 
 
 // ========================================================
-// ALREADY LOGGED IN
+// CHECK EXISTING SESSION
 // ========================================================
 
 document.addEventListener(
@@ -470,9 +501,6 @@ document.addEventListener(
 
     if (existingRollNo) {
 
-      // Do not automatically redirect yet.
-      // This allows us to test the login page manually.
-
       console.log(
         "Existing student session:",
         existingRollNo
@@ -484,6 +512,5 @@ document.addEventListener(
 );
 
 </script>
-
 </body>
 </html>
