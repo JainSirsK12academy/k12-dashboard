@@ -249,14 +249,8 @@ loginForm.addEventListener("submit", async function (event) {
       encodeURIComponent(password);
 
 
-   const response = await fetch(
-  url + "&_=" + Date.now(),
-  {
-    method: "GET",
-    cache: "no-store",
-    redirect: "follow"
-  }
-);
+   const response =
+  await fetch(url);
 
 
     if (!response.ok) {
