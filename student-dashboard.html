@@ -441,24 +441,40 @@ async function apiRequest(action) {
     "&rollNo=" +
     encodeURIComponent(studentRollNo);
 
+  console.log(
+    "API Request:",
+    action,
+    url
+  );
+
   const response =
     await fetch(url);
 
   if (!response.ok) {
+
     throw new Error(
       "API request failed: " +
       response.status
     );
+
   }
 
   const data =
     await response.json();
 
+  console.log(
+    "API Response:",
+    action,
+    data
+  );
+
   if (!data.success) {
+
     throw new Error(
       data.message ||
       "Unable to load data."
     );
+
   }
 
   return data;
