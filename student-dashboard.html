@@ -806,25 +806,68 @@ document.addEventListener(
 
 // =========================================================
 // LOAD DASHBOARD
-// =========================================================
+// =========================================================async function loadDashboard() {
 
-function loadDashboard() {
+  try {
 
-  /*
-   * IMPORTANT:
-   * Each request is independent.
-   *
-   * If Tests is slow/fails, Syllabus, Attendance and
-   * Results can still load.
-   */
+    console.log("Loading dashboard...");
 
-  loadUpcomingTests();
+    const data =
+      await apiRequest("dashboard");
 
-  loadSyllabus();
+    console.log(
+      "Dashboard response:",
+      data
+    );
 
-  loadTestResults();
 
-  loadAttendance();
+    renderUpcomingTests(
+      data.tests || []
+    );
+
+
+    renderSyllabus(
+      data.syllabus || {}
+    );
+
+
+    renderTestResults(
+      data.testResults || []
+    );
+
+
+    renderAttendance(
+      data.attendance || {}
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Dashboard loading error:",
+      error
+    );
+
+
+    document.getElementById(
+      "upcomingTestsList"
+    ).innerHTML =
+      '<p class="text-sm text-red-500">Unable to load dashboard data.</p>';
+
+
+    document.getElementById(
+      "syllabusList"
+    ).innerHTML =
+      '<p class="text-sm text-red-500">Unable to load dashboard data.</p>';
+
+
+    document.getElementById(
+      "performanceList"
+    ).innerHTML =
+      '<p class="text-sm text-red-500">Unable to load dashboard data.</p>';
+
+  }
 
 }
 
@@ -1132,6 +1175,433 @@ function setStudentClass(className) {
 
 }
 
+// =========================================================
+// RENDER UPCOMING TESTS
+// =========================================================
+
+function renderUpcomingTests(tests) {
+
+  const list =
+    document.getElementById(
+      "upcomingTestsList"
+    );
+
+
+  document.getElementById(
+    "upcomingTestCount"
+  ).textContent =
+    tests.length;
+
+
+  document.getElementById(
+    "testBadge"
+  ).textContent =
+    tests.length + " upcoming";
+
+
+  if (!tests.length) {
+
+    list.innerHTML =
+      '<p class="text-sm text-slate-500">' +
+      'No upcoming tests.' +
+      '</p>';
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    tests.map(function(test) {
+
+      return `
+
+        <div class="border rounded-2xl p-4">
+
+          <div class="flex justify-between gap-3">
+
+            <div>
+
+              <p class="font-semibold">
+                ${escapeHtml(test.subject || "")}
+              </p>
+
+              <p class="text-sm text-slate-500">
+                ${escapeHtml(test.chapter || "")}
+              </p>
+
+            </div>
+
+
+            <span
+              class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-lg h-fit"
+            >
+              ${escapeHtml(test.testName || "")}
+            </span>
+
+          </div>
+
+
+          <p class="text-sm font-medium mt-3">
+
+            📅 ${escapeHtml(test.date || "")}
+
+          </p>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+// =========================================================
+// RENDER SYLLABUS
+// =========================================================
+
+function renderSyllabus(data) {
+
+  const list =
+    document.getElementById(
+      "syllabusList"
+    );
+
+
+  const overall =
+    data.overall &&
+    data.overall.percentage !== undefined
+
+      ? Number(
+          data.overall.percentage
+        )
+
+      : 0;
+
+
+  document.getElementById(
+    "syllabusPercent"
+  ).textContent =
+    overall + "%";
+
+
+  document.getElementById(
+    "syllabusBadge"
+  ).textContent =
+    overall + "%";
+
+
+  const subjects =
+    data.subjects || {};
+
+
+  const subjectNames =
+    Object.keys(subjects);
+
+
+  if (!subjectNames.length) {
+
+    list.innerHTML =
+      '<p class="text-sm text-slate-500">' +
+      'No syllabus data available.' +
+      '</p>';
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    subjectNames.map(function(subject) {
+
+      const item =
+        subjects[subject];
+
+
+      const percentage =
+        Number(
+          item.percentage || 0
+        );
+
+
+      return `
+
+        <div>
+
+          <div class="flex justify-between text-sm mb-1">
+
+            <span class="font-medium">
+              ${escapeHtml(subject)}
+            </span>
+
+            <span>
+              ${percentage}%
+            </span>
+
+          </div>
+
+
+          <div
+            class="h-2 bg-slate-100 rounded-full overflow-hidden"
+          >
+
+            <div
+              class="progress-bar h-full bg-blue-600 rounded-full"
+              style="width:${percentage}%"
+            ></div>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+// =========================================================
+// RENDER TEST RESULTS
+// =========================================================
+
+function renderTestResults(results) {
+
+  const list =
+    document.getElementById(
+      "performanceList"
+    );
+
+
+  if (!results.length) {
+
+    document.getElementById(
+      "performanceAverage"
+    ).textContent =
+      "--";
+
+
+    list.innerHTML =
+      '<p class="text-sm text-slate-500">' +
+      'No test results available yet.' +
+      '</p>';
+
+    return;
+
+  }
+
+
+  let totalPercentage = 0;
+
+  let validResults = 0;
+
+
+  results.forEach(function(result) {
+
+    const marks =
+      Number(result.marks);
+
+    const total =
+      Number(result.totalMarks);
+
+
+    if (
+      !isNaN(marks) &&
+      !isNaN(total) &&
+      total > 0
+    ) {
+
+      totalPercentage +=
+        (marks / total) * 100;
+
+      validResults++;
+
+    }
+
+  });
+
+
+  const average =
+    validResults > 0
+
+      ? Math.round(
+          totalPercentage /
+          validResults
+        )
+
+      : 0;
+
+
+  document.getElementById(
+    "performanceAverage"
+  ).textContent =
+    average + "%";
+
+
+  const recentResults =
+    results
+      .slice(-5)
+      .reverse();
+
+
+  list.innerHTML =
+    recentResults.map(function(result) {
+
+      const marks =
+        Number(result.marks);
+
+      const total =
+        Number(result.totalMarks);
+
+      let percentage = 0;
+
+
+      if (
+        !isNaN(marks) &&
+        !isNaN(total) &&
+        total > 0
+      ) {
+
+        percentage =
+          Math.round(
+            (marks / total) * 100
+          );
+
+      }
+
+
+      return `
+
+        <div
+          class="flex items-center justify-between border rounded-xl p-3"
+        >
+
+          <div>
+
+            <p class="font-medium text-sm">
+
+              ${escapeHtml(
+                result.subject || ""
+              )}
+
+              ${
+                result.testName
+                  ? " - " +
+                    escapeHtml(
+                      result.testName
+                    )
+                  : ""
+              }
+
+            </p>
+
+
+            <p class="text-xs text-slate-500">
+
+              ${escapeHtml(
+                result.chapter || ""
+              )}
+
+              ${
+                result.date
+                  ? " • " +
+                    escapeHtml(
+                      result.date
+                    )
+                  : ""
+              }
+
+            </p>
+
+
+            <p class="text-xs text-slate-500 mt-1">
+
+              ${escapeHtml(
+                result.marks || ""
+              )}
+              /
+              ${escapeHtml(
+                result.totalMarks || ""
+              )}
+
+            </p>
+
+          </div>
+
+
+          <span class="font-bold">
+
+            ${percentage}%
+
+          </span>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+// =========================================================
+// RENDER ATTENDANCE
+// =========================================================
+
+function renderAttendance(data) {
+
+  const present =
+    Number(
+      data.present || 0
+    );
+
+
+  const absent =
+    Number(
+      data.absent || 0
+    );
+
+
+  const percentage =
+    Number(
+      data.percentage || 0
+    );
+
+
+  document.getElementById(
+    "attendancePercent"
+  ).textContent =
+    percentage + "%";
+
+
+  document.getElementById(
+    "attendanceText"
+  ).textContent =
+    percentage + "%";
+
+
+  document.getElementById(
+    "presentCount"
+  ).textContent =
+    present;
+
+
+  document.getElementById(
+    "absentCount"
+  ).textContent =
+    absent;
+
+
+  document.getElementById(
+    "attendanceBar"
+  ).style.width =
+    percentage + "%";
+
+}
+
+
+  
 
 // =========================================================
 // UPCOMING TESTS
