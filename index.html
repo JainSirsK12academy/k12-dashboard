@@ -8,6 +8,48 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <style>
+    /* 🇮🇳 Independence Day Theme */
+
+body {
+  background-attachment: fixed;
+}
+
+/* Tricolour line at top */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(
+    to right,
+    #ff9933 0%,
+    #ff9933 33.33%,
+    #ffffff 33.33%,
+    #ffffff 66.66%,
+    #138808 66.66%,
+    #138808 100%
+  );
+  z-index: 9999;
+}
+
+/* Give dashboard cards a festive feel */
+.bg-white {
+  border-top: 4px solid #ff9933;
+  border-bottom: 4px solid #138808;
+}
+
+/* Slight patriotic hover effect */
+.bg-white:hover {
+  transform: translateY(-3px);
+  transition: 0.25s ease;
+}
+
+/* Ashoka Chakra style heading accent */
+h2 {
+  color: #000080;
+}
     .pulse {
       animation: pulse 1s ease-out;
     }
@@ -19,10 +61,24 @@
     }
   </style>
 </head>
-<body class="bg-gray-100 font-[Inter] p-4">
+<body class="font-[Inter] p-4 min-h-screen bg-gradient-to-b from-orange-100 via-white to-green-100">
 
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold text-center mb-6">📚 K-12 Academy Dashboard</h1>
+    <div class="text-center mb-6">
+  <div class="text-4xl mb-2">🇮🇳</div>
+
+  <h1 class="text-3xl font-bold text-blue-900">
+    Jain Sir's K-12 Academy
+  </h1>
+
+  <p class="text-xl font-semibold mt-2">
+    🧡 Happy Independence Day 🤍 15 August 💚
+  </p>
+
+  <p class="text-gray-600 mt-1">
+    Freedom to Learn • Freedom to Think • Freedom to Achieve
+  </p>
+</div>
 
     <!-- Face Recognition Attendance -->
     <div class="bg-white p-6 rounded-2xl shadow mb-6">
@@ -128,6 +184,24 @@
         <h2 class="text-xl font-semibold mb-2">📊 Teacher Summary</h2>
         <p class="text-gray-600">See weekly logs of what you’ve taught and homework assigned.</p>
       </a>
+<div class="mt-8 text-center bg-white rounded-2xl shadow p-5 border-t-4 border-orange-400 border-b-4 border-green-600">
+
+  <div class="text-3xl mb-2">🇮🇳</div>
+
+  <p class="font-bold text-lg text-blue-900">
+    Celebrating 80th Independence Day
+  </p>
+
+  <p class="text-gray-600 mt-1">
+    🧡 Learn with Purpose • 🤍 Grow with Values • 💚 Build the Future
+  </p>
+
+  <p class="font-semibold mt-2">
+    Jai Hind! 🇮🇳
+  </p>
+
+</div>
+      
     </div>
   </div>
 
