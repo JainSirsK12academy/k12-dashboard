@@ -1563,6 +1563,699 @@ function closeSyllabusDashboard() {
     .classList.add("hidden");
 
 }
+
+ let loggedTeacherEmail = "";
+let loggedTeacherPin = "";
+
+
+function openTeacherHours() {
+
+  const section =
+    document.getElementById(
+      "teacherHoursDashboard"
+    );
+
+  section.classList.remove("hidden");
+
+  setTimeout(() => {
+
+    section.scrollIntoView({
+      behavior: "smooth"
+    });
+
+  }, 100);
+
+}
+
+
+function closeTeacherHours() {
+
+  document
+    .getElementById("teacherHoursDashboard")
+    .classList.add("hidden");
+
+}
+
+    async function teacherHoursLogin() {
+
+  const email =
+    document
+      .getElementById("teacherLoginEmail")
+      .value
+      .trim();
+
+  const pin =
+    document
+      .getElementById("teacherLoginPin")
+      .value
+      .trim();
+
+  const message =
+    document.getElementById(
+      "teacherLoginMessage"
+    );
+
+
+  if (!email || !pin) {
+
+    message.textContent =
+      "Please enter email and PIN.";
+
+    return;
+
+  }
+
+
+  message.textContent =
+    "Checking login...";
+
+
+  try {
+
+    const url =
+      `${TEACHER_HOURS_API}` +
+      `?action=teacherLogin` +
+      `&email=${encodeURIComponent(email)}` +
+      `&pin=${encodeURIComponent(pin)}` +
+      `&t=${Date.now()}`;
+
+
+    const response =
+      await fetch(url, {
+        cache: "no-store"
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
+
+      message.textContent =
+        data.message || "Invalid login.";
+
+      return;
+
+    }
+
+
+    loggedTeacherEmail = email;
+    loggedTeacherPin = pin;
+
+
+    document
+      .getElementById("teacherHoursLogin")
+      .classList.add("hidden");
+
+
+    document
+      .getElementById("teacherHoursContent")
+      .classList.remove("hidden");
+
+
+    document.getElementById(
+      "loggedTeacherName"
+    ).textContent =
+      data.teacherName;
+
+
+    message.textContent = "";
+
+
+    setCurrentTeacherMonth();
+
+    loadTeacherHours();
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    message.textContent =
+      "Unable to login. Please try again.";
+
+  }
+
+}
+
+    function setCurrentTeacherMonth() {
+
+  const now =
+    new Date();
+
+  const year =
+    now.getFullYear();
+
+  const month =
+    String(
+      now.getMonth() + 1
+    ).padStart(2, "0");
+
+  document.getElementById(
+    "teacherHoursMonth"
+  ).value =
+    `${year}-${month}`;
+
+}
+
+    async function loadTeacherHours() {
+
+  const monthValue =
+    document.getElementById(
+      "teacherHoursMonth"
+    ).value;
+
+  if (!monthValue) return;
+
+
+  const [year, month] =
+    monthValue.split("-");
+
+
+  const url =
+    `${TEACHER_HOURS_API}` +
+    `?action=teacherHours` +
+    `&email=${encodeURIComponent(loggedTeacherEmail)}` +
+    `&pin=${encodeURIComponent(loggedTeacherPin)}` +
+    `&year=${encodeURIComponent(year)}` +
+    `&month=${encodeURIComponent(month)}` +
+    `&t=${Date.now()}`;
+
+
+  try {
+
+    const response =
+      await fetch(url, {
+        cache: "no-store"
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
+
+      throw new Error(
+        data.message ||
+        "Unable to load hours"
+      );
+
+    }
+
+
+    displayTeacherHours(data);
+
+
+  } catch (error) {
+
+    console.error(
+      "Teacher hours error:",
+      error
+    );
+
+  }
+
+}
+
+    function displayTeacherHours(data) {
+
+  document.getElementById(
+    "teacherTotalHours"
+  ).textContent =
+    Number(data.totalHours || 0)
+      .toFixed(2) + " hrs";
+
+
+  document.getElementById(
+    "teacherTotalSessions"
+  ).textContent =
+    data.totalSessions || 0;
+
+
+  const average =
+    data.totalSessions
+      ? data.totalHours /
+        data.totalSessions
+      : 0;
+
+
+  document.getElementById(
+    "teacherAverageHours"
+  ).textContent =
+    average.toFixed(2) + " hrs";
+
+
+  // CLASS-WISE
+
+  const classContainer =
+    document.getElementById(
+      "teacherClassHours"
+    );
+
+
+  classContainer.innerHTML =
+    Object.entries(
+      data.classHours || {}
+    )
+      .map(([name, hours]) => `
+
+        <div class="flex justify-between border-b py-2">
+
+          <span>${name}</span>
+
+          <strong>
+            ${Number(hours).toFixed(2)} hrs
+          </strong>
+
+        </div>
+
+      `)
+      .join("") ||
+
+    `<p class="text-gray-400">
+       No classes this month.
+     </p>`;
+
+
+  // SUBJECT-WISE
+
+  const subjectContainer =
+    document.getElementById(
+      "teacherSubjectHours"
+    );
+
+
+  subjectContainer.innerHTML =
+    Object.entries(
+      data.subjectHours || {}
+    )
+      .map(([name, hours]) => `
+
+        <div class="flex justify-between border-b py-2">
+
+          <span>${name}</span>
+
+          <strong>
+            ${Number(hours).toFixed(2)} hrs
+          </strong>
+
+        </div>
+
+      `)
+      .join("") ||
+
+    `<p class="text-gray-400">
+       No subjects this month.
+     </p>`;
+
+
+  // SESSION TABLE
+
+  const tbody =
+    document.getElementById(
+      "teacherHoursTable"
+    );
+
+
+  tbody.innerHTML =
+    (data.sessions || [])
+      .map(session => `
+
+        <tr class="border-t">
+
+          <td class="px-4 py-3 text-sm">
+            ${session.date}
+          </td>
+
+          <td class="px-4 py-3 text-sm">
+            ${session.className}
+          </td>
+
+          <td class="px-4 py-3 text-sm">
+            ${session.subject}
+          </td>
+
+          <td class="px-4 py-3 text-sm">
+            ${session.topic}
+          </td>
+
+          <td class="px-4 py-3 text-sm font-semibold">
+            ${Number(session.hours).toFixed(2)}
+          </td>
+
+        </tr>
+
+      `)
+      .join("") ||
+
+    `
+
+      <tr>
+
+        <td colspan="5"
+            class="text-center text-gray-400 py-8">
+
+          No teaching sessions for this month.
+
+        </td>
+
+      </tr>
+
+    `;
+
+}
+
+    function teacherHoursLogout() {
+
+  loggedTeacherEmail = "";
+  loggedTeacherPin = "";
+
+  document
+    .getElementById("teacherHoursContent")
+    .classList.add("hidden");
+
+  document
+    .getElementById("teacherHoursLogin")
+    .classList.remove("hidden");
+
+  document.getElementById(
+    "teacherLoginPin"
+  ).value = "";
+
+}
+
+
+    function validateTeacherLogin(email, pin) {
+
+  const ss =
+    SpreadsheetApp.getActiveSpreadsheet();
+
+  const sheet =
+    ss.getSheetByName(
+      "Teacher_Directory"
+    );
+
+
+  if (!sheet) {
+
+    return {
+      success: false,
+      message: "Teacher directory not found"
+    };
+
+  }
+
+
+  const data =
+    sheet.getDataRange().getValues();
+
+
+  const loginEmail =
+    String(email || "")
+      .trim()
+      .toLowerCase();
+
+  const loginPin =
+    String(pin || "")
+      .trim();
+
+
+  for (
+    let i = 1;
+    i < data.length;
+    i++
+  ) {
+
+    const teacherName =
+      String(data[i][0] || "")
+        .trim();
+
+    const teacherEmail =
+      String(data[i][1] || "")
+        .trim()
+        .toLowerCase();
+
+    const teacherPin =
+      String(data[i][2] || "")
+        .trim();
+
+
+    if (
+      teacherEmail === loginEmail &&
+      teacherPin === loginPin
+    ) {
+
+      return {
+        success: true,
+        teacherName: teacherName,
+        email: teacherEmail
+      };
+
+    }
+
+  }
+
+
+  return {
+    success: false,
+    message: "Invalid email or PIN"
+  };
+
+}
+
+
+    function getTeacherMonthlyHours(
+  email,
+  pin,
+  year,
+  month
+) {
+
+  const login =
+    validateTeacherLogin(
+      email,
+      pin
+    );
+
+
+  if (!login.success) {
+    return login;
+  }
+
+
+  const ss =
+    SpreadsheetApp.getActiveSpreadsheet();
+
+
+  const sheet =
+    ss.getSheetByName(
+      "Form Responses 1"
+    );
+
+
+  if (!sheet) {
+
+    return {
+      success: false,
+      message:
+        "Form Responses 1 sheet not found"
+    };
+
+  }
+
+
+  const data =
+    sheet.getDataRange().getValues();
+
+
+  const headers =
+    data[0].map(h =>
+      String(h).trim()
+    );
+
+
+  const col =
+    name =>
+      headers.indexOf(name);
+
+
+  const teacherCol =
+    col("Teacher Name");
+
+  const classCol =
+    col("Class");
+
+  const subjectCol =
+    col("Subject");
+
+  const topicCol =
+    col("Topic Taught");
+
+  const hoursCol =
+    col("Hours");
+
+  const dateCol =
+    col("Date");
+
+
+  let totalHours = 0;
+
+  let totalSessions = 0;
+
+  const classHours = {};
+
+  const subjectHours = {};
+
+  const sessions = [];
+
+
+  for (
+    let i = 1;
+    i < data.length;
+    i++
+  ) {
+
+    const row =
+      data[i];
+
+
+    const teacherName =
+      String(
+        row[teacherCol] || ""
+      ).trim();
+
+
+    if (
+      teacherName.toLowerCase() !==
+      login.teacherName.toLowerCase()
+    ) {
+
+      continue;
+
+    }
+
+
+    const date =
+      row[dateCol];
+
+
+    if (!(date instanceof Date)) {
+      continue;
+    }
+
+
+    if (
+      date.getFullYear() !==
+        Number(year)
+      ||
+      date.getMonth() + 1 !==
+        Number(month)
+    ) {
+
+      continue;
+
+    }
+
+
+    const hours =
+      Number(
+        row[hoursCol] || 0
+      );
+
+
+    totalHours += hours;
+
+    totalSessions++;
+
+
+    const className =
+      String(
+        row[classCol] || ""
+      ).trim();
+
+
+    const subject =
+      String(
+        row[subjectCol] || ""
+      ).trim();
+
+
+    if (className) {
+
+      classHours[className] =
+        (classHours[className] || 0)
+        + hours;
+
+    }
+
+
+    if (subject) {
+
+      subjectHours[subject] =
+        (subjectHours[subject] || 0)
+        + hours;
+
+    }
+
+
+    sessions.push({
+
+      date:
+        Utilities.formatDate(
+          date,
+          Session.getScriptTimeZone(),
+          "dd MMM yyyy"
+        ),
+
+      className:
+        className,
+
+      subject:
+        subject,
+
+      topic:
+        String(
+          row[topicCol] || ""
+        ),
+
+      hours:
+        hours
+
+    });
+
+  }
+
+
+  return {
+
+    success: true,
+
+    teacherName:
+      login.teacherName,
+
+    totalHours:
+      Number(
+        totalHours.toFixed(2)
+      ),
+
+    totalSessions:
+      totalSessions,
+
+    classHours:
+      classHours,
+
+    subjectHours:
+      subjectHours,
+
+    sessions:
+      sessions
+
+  };
+
+}
+
     
     
 
