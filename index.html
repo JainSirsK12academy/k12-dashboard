@@ -651,7 +651,7 @@ method: 'POST',
 let syllabusDashboardData = [];
 let selectedDashboardSubject = "ALL";
 
-function loadSyllabusDashboard() {
+async function loadSyllabusDashboard() {
 
   const classSelector =
     document.getElementById("dashboardClass");
@@ -661,63 +661,168 @@ function loadSyllabusDashboard() {
   const [board, className] =
     classSelector.value.split("|");
 
-  document.getElementById("chapterTableBody").innerHTML = `
+  const tbody =
+    document.getElementById("chapterTableBody");
+
+  tbody.innerHTML = `
     <tr>
       <td colspan="6"
           class="text-center px-4 py-8 text-gray-400">
-        Loading syllabus...
+        ⏳ Loading syllabus...
       </td>
     </tr>
   `;
 
+  const url =
+    `${WEB_APP_URL}?action=teacherSyllabus` +
+    `&board=${encodeURIComponent(board)}` +
+    `&className=${encodeURIComponent(className)}` +
+    `&t=${Date.now()}`;
 
-  fetch(
-    `${WEB_APP_URL}?action=teacherSyllabus&board=${encodeURIComponent(board)}&className=${encodeURIComponent(className)}`
-  )
+  try {
 
-    .then(response => response.json())
+    const data =
+      await fetchSyllabusWithRetry(url, 3);
 
-    .then(data => {
+    if (!data.success) {
+      throw new Error(
+        data.message || "Unable to load syllabus"
+      );
+    }
 
-      if (!data.success) {
+    syllabusDashboardData =
+      data.chapters || [];
+
+    selectedDashboardSubject = "ALL";
+
+    updateSyllabusDashboard();
+
+  } catch (error) {
+
+    console.error(
+      "Syllabus loading failed:",
+      error
+    );
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6"
+            class="text-center px-4 py-8">
+
+          <div class="text-red-600 font-semibold mb-3">
+            ⚠️ Could not load syllabus
+          </div>
+
+          <div class="text-sm text-gray-500 mb-4">
+            The connection to the syllabus server may have timed out.
+          </div>
+
+          <button
+            onclick="loadSyllabusDashboard()"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+
+            🔄 Try Again
+
+          </button>
+
+        </td>
+      </tr>
+    `;
+
+  }
+
+}
+
+    async function fetchSyllabusWithRetry(
+  url,
+  maxAttempts = 3
+) {
+
+  let lastError;
+
+  for (
+    let attempt = 1;
+    attempt <= maxAttempts;
+    attempt++
+  ) {
+
+    try {
+
+      const controller =
+        new AbortController();
+
+      const timeout =
+        setTimeout(() => {
+          controller.abort();
+        }, 15000);
+
+      const response =
+        await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal
+        });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(
+          `Server returned ${response.status}`
+        );
+      }
+
+      const text =
+        await response.text();
+
+      let data;
+
+      try {
+
+        data =
+          JSON.parse(text);
+
+      } catch (jsonError) {
+
+        console.error(
+          "Non-JSON response:",
+          text
+        );
 
         throw new Error(
-          data.message || "Unable to load syllabus"
+          "Invalid response from syllabus server"
         );
 
       }
 
-      syllabusDashboardData =
-        data.chapters || [];
+      return data;
 
-      selectedDashboardSubject = "ALL";
+    } catch (error) {
 
-      updateSyllabusDashboard();
+      lastError = error;
 
-    })
+      console.warn(
+        `Syllabus attempt ${attempt} failed`,
+        error
+      );
 
-    .catch(error => {
+      if (
+        attempt < maxAttempts
+      ) {
 
-      console.error(error);
+        await new Promise(resolve =>
+          setTimeout(
+            resolve,
+            attempt * 1000
+          )
+        );
 
-      document.getElementById(
-        "chapterTableBody"
-      ).innerHTML = `
+      }
 
-        <tr>
+    }
 
-          <td colspan="6"
-              class="text-center px-4 py-8 text-red-500">
+  }
 
-            Unable to load syllabus.
-
-          </td>
-
-        </tr>
-
-      `;
-
-    });
+  throw lastError;
 
 }
 
