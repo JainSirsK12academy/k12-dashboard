@@ -434,7 +434,277 @@ h2 {
   </p>
 
 </div>
-      
+
+<section
+  id="teacherHoursDashboard"
+  class="hidden mt-8">
+
+  <div class="bg-white rounded-2xl shadow p-6">
+
+    <div class="flex justify-between items-center mb-5">
+
+      <div>
+        <h2 class="text-2xl font-bold">
+          ⏱️ My Teaching Hours
+        </h2>
+
+        <p class="text-gray-500 text-sm">
+          View your month-wise teaching summary
+        </p>
+      </div>
+
+      <button
+        onclick="closeTeacherHours()"
+        class="bg-gray-700 text-white px-4 py-2 rounded-lg">
+
+        ✕ Close
+
+      </button>
+
+    </div>
+
+
+    <!-- LOGIN -->
+
+    <div
+      id="teacherHoursLogin"
+      class="max-w-md mx-auto py-6">
+
+      <label class="block text-sm font-semibold mb-1">
+        Email
+      </label>
+
+      <input
+        type="email"
+        id="teacherLoginEmail"
+        placeholder="Teacher email"
+        class="w-full border rounded-lg px-4 py-3 mb-4">
+
+
+      <label class="block text-sm font-semibold mb-1">
+        PIN
+      </label>
+
+      <input
+        type="password"
+        id="teacherLoginPin"
+        placeholder="Enter PIN"
+        inputmode="numeric"
+        class="w-full border rounded-lg px-4 py-3 mb-4">
+
+
+      <button
+        onclick="teacherHoursLogin()"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-3 font-semibold">
+
+        Login
+
+      </button>
+
+      <p
+        id="teacherLoginMessage"
+        class="text-red-600 text-sm mt-3 text-center">
+      </p>
+
+    </div>
+
+
+    <!-- LOGGED IN DASHBOARD -->
+
+    <div
+      id="teacherHoursContent"
+      class="hidden">
+
+
+      <div
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+
+        <div>
+
+          <p class="text-sm text-gray-500">
+            Logged in as
+          </p>
+
+          <h3
+            id="loggedTeacherName"
+            class="text-xl font-bold text-blue-900">
+          </h3>
+
+        </div>
+
+
+        <div class="flex gap-2">
+
+          <input
+            type="month"
+            id="teacherHoursMonth"
+            onchange="loadTeacherHours()"
+            class="border rounded-lg px-4 py-2">
+
+
+          <button
+            onclick="teacherHoursLogout()"
+            class="border px-4 py-2 rounded-lg">
+
+            Logout
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- SUMMARY -->
+
+      <div
+        class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+
+
+        <div class="border rounded-xl p-5 text-center">
+
+          <p class="text-gray-500 text-sm">
+            Total Hours
+          </p>
+
+          <p
+            id="teacherTotalHours"
+            class="text-3xl font-bold text-blue-700 mt-2">
+
+            0
+
+          </p>
+
+        </div>
+
+
+        <div class="border rounded-xl p-5 text-center">
+
+          <p class="text-gray-500 text-sm">
+            Sessions
+          </p>
+
+          <p
+            id="teacherTotalSessions"
+            class="text-3xl font-bold text-green-700 mt-2">
+
+            0
+
+          </p>
+
+        </div>
+
+
+        <div class="border rounded-xl p-5 text-center">
+
+          <p class="text-gray-500 text-sm">
+            Average Session
+          </p>
+
+          <p
+            id="teacherAverageHours"
+            class="text-3xl font-bold text-purple-700 mt-2">
+
+            0
+
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- CLASS BREAKDOWN -->
+
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+
+        <div class="border rounded-xl p-5">
+
+          <h3 class="font-bold mb-4">
+            🏫 Class-wise Hours
+          </h3>
+
+          <div id="teacherClassHours">
+          </div>
+
+        </div>
+
+
+        <div class="border rounded-xl p-5">
+
+          <h3 class="font-bold mb-4">
+            📚 Subject-wise Hours
+          </h3>
+
+          <div id="teacherSubjectHours">
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- SESSION DETAILS -->
+
+      <div class="border rounded-xl mt-5 overflow-hidden">
+
+        <div class="p-4 border-b">
+
+          <h3 class="font-bold">
+            🗓️ Teaching Sessions
+          </h3>
+
+        </div>
+
+        <div class="overflow-x-auto">
+
+          <table class="min-w-full">
+
+            <thead class="bg-gray-50">
+
+              <tr>
+
+                <th class="px-4 py-3 text-left text-xs">
+                  Date
+                </th>
+
+                <th class="px-4 py-3 text-left text-xs">
+                  Class
+                </th>
+
+                <th class="px-4 py-3 text-left text-xs">
+                  Subject
+                </th>
+
+                <th class="px-4 py-3 text-left text-xs">
+                  Topic
+                </th>
+
+                <th class="px-4 py-3 text-left text-xs">
+                  Hours
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="teacherHoursTable">
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+    
 <div class="mt-8 text-center bg-white rounded-2xl shadow p-5 border-t-4 border-orange-400 border-b-4 border-green-600">
 
   <div class="text-3xl mb-2">🇮🇳</div>
