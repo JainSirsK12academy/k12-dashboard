@@ -171,10 +171,19 @@ h2 {
 </div>
 
       
-      <a href="https://forms.gle/your-syllabus-form" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
-        <h2 class="text-xl font-semibold mb-2">📖 Syllabus Completion</h2>
-        <p class="text-gray-600">Log completed chapters per subject and class.</p>
-      </a>
+      <div
+  onclick="openSyllabusDashboard()"
+  class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition cursor-pointer">
+
+  <h2 class="text-xl font-semibold mb-2">
+    📚 Syllabus Dashboard
+  </h2>
+
+  <p class="text-gray-600">
+    View class-wise syllabus progress and chapter completion.
+  </p>
+
+</div>
   
       <a href="https://script.google.com/macros/s/AKfycbyz6rZxNIy78Hj3VhcvN36CbQ3yZO2hOb6Kz2AOBCIe8vO3kL3NKuDw2tuL8Ve6NRVUrA/exec" target="_blank" class="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
         <h2 class="text-xl font-semibold mb-2">🗒️ Daily Teaching Log</h2>
@@ -184,12 +193,20 @@ h2 {
         <h2 class="text-xl font-semibold mb-2">📊 Teacher Summary</h2>
         <p class="text-gray-600">See weekly logs of what you’ve taught and homework assigned.</p>
       </a>
+      </div>
 
 <!-- =========================
      SYLLABUS DASHBOARD
 ========================= -->
 
-<section id="syllabusDashboard" class="hidden">
+<section id="syllabusDashboard" class="hidden mt-8">
+  <div class="flex justify-end mb-3">
+  <button
+    onclick="closeSyllabusDashboard()"
+    class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+    ✕ Close Dashboard
+  </button>
+</div>
 
   <div class="max-w-7xl mx-auto px-4 py-6">
 
@@ -431,6 +448,8 @@ h2 {
   <script>
     const correctUsername = "admin";
     const correctPassword = "k12pass";
+    const WEB_APP_URL =
+  "https://script.google.com/macros/s/AKfycbzYPQeyMEHj_7sN22ujImiVbORZlj0cR9jZ-ydpMESCgZFu_-zF-TgIFdY2afp9kOQ/exec";
 
 
     function showLoginScreen() {
@@ -1133,7 +1152,30 @@ function displayChapterTable() {
 }
 
     
+function openSyllabusDashboard() {
 
+  const dashboard =
+    document.getElementById("syllabusDashboard");
+
+  dashboard.classList.remove("hidden");
+
+  setTimeout(() => {
+    dashboard.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 100);
+
+}
+
+
+function closeSyllabusDashboard() {
+
+  document
+    .getElementById("syllabusDashboard")
+    .classList.add("hidden");
+
+}
     
     
 
