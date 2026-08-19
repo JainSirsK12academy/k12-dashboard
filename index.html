@@ -627,7 +627,515 @@ method: 'POST',
 
    
 }
- 
+
+
+let syllabusDashboardData = [];
+let selectedDashboardSubject = "ALL";
+
+function loadSyllabusDashboard() {
+
+  const classSelector =
+    document.getElementById("dashboardClass");
+
+  if (!classSelector.value) return;
+
+  const [board, className] =
+    classSelector.value.split("|");
+
+  document.getElementById("chapterTableBody").innerHTML = `
+    <tr>
+      <td colspan="6"
+          class="text-center px-4 py-8 text-gray-400">
+        Loading syllabus...
+      </td>
+    </tr>
+  `;
+
+
+  fetch(
+    `${WEB_APP_URL}?action=teacherSyllabus&board=${encodeURIComponent(board)}&className=${encodeURIComponent(className)}`
+  )
+
+    .then(response => response.json())
+
+    .then(data => {
+
+      if (!data.success) {
+
+        throw new Error(
+          data.message || "Unable to load syllabus"
+        );
+
+      }
+
+      syllabusDashboardData =
+        data.chapters || [];
+
+      selectedDashboardSubject = "ALL";
+
+      updateSyllabusDashboard();
+
+    })
+
+    .catch(error => {
+
+      console.error(error);
+
+      document.getElementById(
+        "chapterTableBody"
+      ).innerHTML = `
+
+        <tr>
+
+          <td colspan="6"
+              class="text-center px-4 py-8 text-red-500">
+
+            Unable to load syllabus.
+
+          </td>
+
+        </tr>
+
+      `;
+
+    });
+
+}
+
+    
+function updateSyllabusDashboard() {
+
+  updateOverallProgress();
+
+  updateSubjectProgress();
+
+  createSubjectFilters();
+
+  displayChapterTable();
+
+}
+
+function updateOverallProgress() {
+
+  const chapters = syllabusDashboardData;
+
+  const total =
+    chapters.length;
+
+  const completed =
+    chapters.filter(ch =>
+      normalizeStatus(ch.status) === "completed"
+    ).length;
+
+  const partial =
+    chapters.filter(ch =>
+      normalizeStatus(ch.status) === "partial"
+    ).length;
+
+  const notStarted =
+    total - completed - partial;
+
+
+  let percentage = 0;
+
+  if (total > 0) {
+
+    percentage =
+      Math.round(
+        ((completed + partial * 0.5) / total) * 100
+      );
+
+  }
+
+
+  document.getElementById(
+    "completedCount"
+  ).textContent = completed;
+
+
+  document.getElementById(
+    "partialCount"
+  ).textContent = partial;
+
+
+  document.getElementById(
+    "notStartedCount"
+  ).textContent = notStarted;
+
+
+  document.getElementById(
+    "overallPercentage"
+  ).textContent = percentage + "%";
+
+
+  document.getElementById(
+    "overallProgressBar"
+  ).style.width = percentage + "%";
+
+}
+
+
+    function normalizeStatus(status) {
+
+  const value =
+    String(status || "")
+      .trim()
+      .toLowerCase();
+
+  if (
+    value === "completed" ||
+    value === "complete"
+  ) {
+    return "completed";
+  }
+
+  if (
+    value === "partial" ||
+    value === "in progress" ||
+    value === "started"
+  ) {
+    return "partial";
+  }
+
+  return "not started";
+
+}
+
+
+    function updateSubjectProgress() {
+
+  const container =
+    document.getElementById("subjectProgress");
+
+  const subjects = {};
+
+
+  syllabusDashboardData.forEach(chapter => {
+
+    if (!subjects[chapter.subject]) {
+
+      subjects[chapter.subject] = [];
+
+    }
+
+    subjects[chapter.subject].push(chapter);
+
+  });
+
+
+  let html = "";
+
+
+  Object.keys(subjects)
+    .sort()
+    .forEach(subject => {
+
+      const chapters =
+        subjects[subject];
+
+      const total =
+        chapters.length;
+
+      const completed =
+        chapters.filter(ch =>
+          normalizeStatus(ch.status) === "completed"
+        ).length;
+
+      const partial =
+        chapters.filter(ch =>
+          normalizeStatus(ch.status) === "partial"
+        ).length;
+
+
+      const percentage =
+        total
+          ? Math.round(
+              ((completed + partial * 0.5) / total) * 100
+            )
+          : 0;
+
+
+      html += `
+
+        <div class="mb-5">
+
+          <div class="flex justify-between mb-1">
+
+            <span class="font-medium text-gray-700">
+              ${subject}
+            </span>
+
+            <span class="text-sm font-semibold text-gray-600">
+              ${percentage}%
+            </span>
+
+          </div>
+
+
+          <div class="w-full bg-gray-200 rounded-full h-2">
+
+            <div
+              class="bg-blue-500 h-2 rounded-full"
+              style="width:${percentage}%">
+            </div>
+
+          </div>
+
+
+          <div class="text-xs text-gray-400 mt-1">
+
+            ${completed} of ${total} chapters completed
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+
+  container.innerHTML =
+    html ||
+    `<p class="text-gray-400">
+       No syllabus found.
+     </p>`;
+
+}
+
+
+    function createSubjectFilters() {
+
+  const container =
+    document.getElementById("subjectFilters");
+
+
+  const subjects =
+    [...new Set(
+      syllabusDashboardData.map(
+        item => item.subject
+      )
+    )].sort();
+
+
+  let html = `
+
+    <button
+      onclick="filterDashboardSubject('ALL')"
+      class="px-4 py-2 rounded-lg text-sm
+      ${selectedDashboardSubject === "ALL"
+        ? "bg-blue-600 text-white"
+        : "bg-white border text-gray-600"}">
+
+      All
+
+    </button>
+
+  `;
+
+
+  subjects.forEach(subject => {
+
+    html += `
+
+      <button
+        onclick="filterDashboardSubject('${escapeJS(subject)}')"
+        class="px-4 py-2 rounded-lg text-sm
+        ${selectedDashboardSubject === subject
+          ? "bg-blue-600 text-white"
+          : "bg-white border text-gray-600"}">
+
+        ${subject}
+
+      </button>
+
+    `;
+
+  });
+
+
+  container.innerHTML = html;
+
+}
+
+
+    function filterDashboardSubject(subject) {
+
+  selectedDashboardSubject =
+    subject;
+
+  createSubjectFilters();
+
+  displayChapterTable();
+
+}
+
+
+
+    function escapeJS(value) {
+
+  return String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'");
+
+}
+
+function displayChapterTable() {
+
+  const tbody =
+    document.getElementById(
+      "chapterTableBody"
+    );
+
+
+  let chapters =
+    syllabusDashboardData;
+
+
+  if (
+    selectedDashboardSubject !== "ALL"
+  ) {
+
+    chapters =
+      chapters.filter(
+        chapter =>
+          chapter.subject ===
+          selectedDashboardSubject
+      );
+
+  }
+
+
+  if (!chapters.length) {
+
+    tbody.innerHTML = `
+
+      <tr>
+
+        <td colspan="6"
+            class="text-center px-4 py-8 text-gray-400">
+
+          No chapters found.
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  tbody.innerHTML =
+    chapters.map(chapter => {
+
+      const status =
+        normalizeStatus(chapter.status);
+
+
+      let badge = "";
+
+
+      if (status === "completed") {
+
+        badge = `
+
+          <span
+            class="px-2 py-1
+            bg-green-100
+            text-green-700
+            rounded-full
+            text-xs font-medium">
+
+            ✓ Completed
+
+          </span>
+
+        `;
+
+      }
+
+      else if (status === "partial") {
+
+        badge = `
+
+          <span
+            class="px-2 py-1
+            bg-yellow-100
+            text-yellow-700
+            rounded-full
+            text-xs font-medium">
+
+            In Progress
+
+          </span>
+
+        `;
+
+      }
+
+      else {
+
+        badge = `
+
+          <span
+            class="px-2 py-1
+            bg-gray-100
+            text-gray-600
+            rounded-full
+            text-xs font-medium">
+
+            Not Started
+
+          </span>
+
+        `;
+
+      }
+
+
+      return `
+
+        <tr class="border-t">
+
+          <td class="px-4 py-3 text-sm">
+            ${chapter.subject || ""}
+          </td>
+
+          <td class="px-4 py-3 text-sm">
+            ${chapter.chapterNo || ""}
+          </td>
+
+          <td class="px-4 py-3 text-sm font-medium text-gray-700">
+            ${chapter.chapterName || ""}
+          </td>
+
+          <td class="px-4 py-3 text-sm">
+            ${chapter.lecturesTaken || 0}
+          </td>
+
+          <td class="px-4 py-3">
+            ${badge}
+          </td>
+
+          <td class="px-4 py-3 text-sm text-gray-500">
+            ${chapter.lastTeacher || "-"}
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+    
+
+    
+    
 
 </script>
 </body>
