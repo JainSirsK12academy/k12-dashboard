@@ -682,7 +682,7 @@ async function loadSyllabusDashboard() {
   try {
 
     const data =
-      await fetchSyllabusWithRetry(url, 3);
+      await fetchSyllabusWithRetry(url, 5);
 
     if (!data.success) {
       throw new Error(
@@ -735,7 +735,7 @@ async function loadSyllabusDashboard() {
 
     async function fetchSyllabusWithRetry(
   url,
-  maxAttempts = 3
+  maxAttempts = 5
 ) {
 
   let lastError;
@@ -812,7 +812,7 @@ async function loadSyllabusDashboard() {
         await new Promise(resolve =>
           setTimeout(
             resolve,
-            attempt * 1000
+            attempt * 2000
           )
         );
 
