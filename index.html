@@ -899,7 +899,7 @@ function updateOverallProgress() {
 }
 
 
-    function normalizeStatus(status) {
+function normalizeStatus(status) {
 
   const value =
     String(status || "")
@@ -915,6 +915,8 @@ function updateOverallProgress() {
 
   if (
     value === "partial" ||
+    value === "partially completed" ||
+    value === "partially complete" ||
     value === "in progress" ||
     value === "started"
   ) {
@@ -922,9 +924,7 @@ function updateOverallProgress() {
   }
 
   return "not started";
-
 }
-
 
     function updateSubjectProgress() {
 
